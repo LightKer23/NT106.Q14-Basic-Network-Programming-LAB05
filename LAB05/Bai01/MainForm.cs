@@ -29,6 +29,7 @@ namespace Bai01
         private async void btnSend_Click(object sender, EventArgs e)
         {
             btnSend.Enabled = false;
+            Cursor = Cursors.WaitCursor;
 
             string from = txtFrom.Text.Trim();
             string to = txtTo.Text.Trim();
@@ -39,6 +40,7 @@ namespace Bai01
             if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to) || string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(body) || string.IsNullOrEmpty(password))
             {
                 btnSend.Enabled = true;
+                Cursor = Cursors.Default;
                 MessageBox.Show("Không được bỏ trống các trường", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -46,6 +48,7 @@ namespace Bai01
             if (!IsValidEmail(from) || !IsValidEmail(to))
             {
                 btnSend.Enabled = true;
+                Cursor = Cursors.Default;
                 MessageBox.Show("Địa chỉ email không hợp lệ.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -84,6 +87,7 @@ namespace Bai01
             finally
             {
                 btnSend.Enabled = true;
+                Cursor = Cursors.Default;
             }
         }
     }
