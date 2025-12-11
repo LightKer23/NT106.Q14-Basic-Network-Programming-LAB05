@@ -53,6 +53,7 @@
             btnSend.TabIndex = 26;
             btnSend.Text = "Gửi";
             btnSend.UseVisualStyleBackColor = true;
+            btnSend.Click += btnSend_Click;
             // 
             // grpSMTPServer
             // 

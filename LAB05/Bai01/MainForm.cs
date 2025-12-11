@@ -28,6 +28,8 @@ namespace Bai01
 
         private async void btnSend_Click(object sender, EventArgs e)
         {
+            btnSend.Enabled = false;
+
             string from = txtFrom.Text.Trim();
             string to = txtTo.Text.Trim();
             string subject = txtSubject.Text.Trim();
@@ -36,12 +38,14 @@ namespace Bai01
 
             if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to) || string.IsNullOrEmpty(subject) || string.IsNullOrEmpty(body) || string.IsNullOrEmpty(password))
             {
+                btnSend.Enabled = true;
                 MessageBox.Show("Không được bỏ trống các trường", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             if (!IsValidEmail(from) || !IsValidEmail(to))
             {
+                btnSend.Enabled = true;
                 MessageBox.Show("Địa chỉ email không hợp lệ.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -61,20 +65,25 @@ namespace Bai01
 
             try
             {
-        
+
                 await client.AuthenticateAsync(from, password);
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
+                MessageBox.Show("Gửi email thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (AuthenticationException authEx)
+            catch (MailKit.Security.AuthenticationException)
             {
                 MessageBox.Show("Email hoặc mật khẩu không chính xác!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 MessageBox.Show("Gửi email thất bại", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
+            }
+            finally
+            {
+                btnSend.Enabled = true;
             }
         }
     }
