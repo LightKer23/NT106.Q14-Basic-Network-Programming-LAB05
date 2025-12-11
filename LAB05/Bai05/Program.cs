@@ -2,6 +2,9 @@ namespace Bai05
 {
     internal static class Program
     {
+        public static ApiClient apiCli { get; private set; }
+        public static AuthService authSer { get; private set; }
+        public static FoodService foodSer { get; private set; }
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -11,7 +14,7 @@ namespace Bai05
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
+            Application.Run(new LoginForm());
         }
     }
 }
