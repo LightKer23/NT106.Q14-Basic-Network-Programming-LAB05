@@ -16,7 +16,6 @@ namespace Bai04.Forms
         public loadMovie()
         {
             InitializeComponent();
-            this.Load += loadMovie_Load;
         }
 
         private async void loadMovie_Load(object sender, EventArgs e)
