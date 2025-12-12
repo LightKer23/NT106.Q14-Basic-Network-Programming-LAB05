@@ -40,7 +40,6 @@ namespace Bai04
                 btn.Tag = btn.BackColor;
 
             DisableSeatsAndBooking();
-
             InitializeEmailService();
         }
 
@@ -81,8 +80,10 @@ namespace Bai04
         private async Task ApplySelectedMovieAsync(Movie mv)
         {
             currentMovie = mv;
+
             movie.Text = mv.Title ?? "";
             await LoadPosterIntoPictureBoxAsync(mv.PosterUrl);
+
             currentBasePrice = GetBasePriceForMovie(mv.Title);
 
             RoomComboBox.Items.Clear();
@@ -92,7 +93,7 @@ namespace Bai04
             RoomComboBox.Enabled = true;
 
             if (RoomComboBox.Items.Count > 0)
-                RoomComboBox.SelectedIndex = 0;
+                RoomComboBox.SelectedIndex = 0; 
 
             BookButton.Enabled = true;
         }
@@ -253,7 +254,6 @@ namespace Bai04
                 return;
             }
 
-            // Mark seats as sold locally
             var seatsJustBooked = selectedSeats.ToList();
             string seatsCsv = string.Join(", ", seatsJustBooked.OrderBy(s => s));
             int totalAmount = seatsJustBooked.Sum(CalculateSeatPrice);
@@ -311,12 +311,23 @@ namespace Bai04
                     ? "Email xác nhận đã được gửi!"
                     : "Không thể gửi email xác nhận (kiểm tra cấu hình email).");
 
+            if (!emailSent && emailService != null && !string.IsNullOrWhiteSpace(emailService.LastError))
+            {
+                msg += "\n\nLỗi SMTP: " + emailService.LastError;
+            }
+
             MessageBox.Show(
                 msg,
                 "Thông báo",
                 MessageBoxButtons.OK,
                 emailSent ? MessageBoxIcon.Information : MessageBoxIcon.Warning
             );
+
+            if (!emailSent)
+            {
+                MessageBox.Show(emailService?.LastError ?? "LastError is null", "SMTP ERROR");
+            }
+
         }
 
         private static string NormalizeMovieKey(string? title)
@@ -359,6 +370,38 @@ namespace Bai04
             }
         }
 
+        private byte[]? GetPosterBytes()
+        {
+            try
+            {
+                if (poster.Image == null) return null;
+                using (var ms = new MemoryStream())
+                {
+                    poster.Image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    return ms.ToArray();
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static async Task<byte[]?> DownloadBytesAsync(string? url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) return null;
+            try
+            {
+                using var http = new HttpClient();
+                http.Timeout = TimeSpan.FromSeconds(10);
+                return await http.GetByteArrayAsync(url);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private async Task<bool> SendConfirmationEmail(
             string customerEmail,
             string customerName,
@@ -370,19 +413,24 @@ namespace Bai04
         {
             try
             {
-                if (emailService == null)
-                    return false;
+                if (emailService == null) return false;
 
-                string movieWithRoom = $"{movieName} (Phòng {room})";
+                byte[]? posterBytes = GetPosterBytes();
+
+                if ((posterBytes == null || posterBytes.Length == 0) && !string.IsNullOrWhiteSpace(posterUrl))
+                {
+                    posterBytes = await DownloadBytesAsync(posterUrl);
+                }
 
                 return await emailService.SendBookingConfirmationAsync(
                     customerEmail: customerEmail,
                     customerName: customerName,
-                    movieName: movieWithRoom,
+                    movieName: movieName,
+                    room: room,
                     seats: seats,
                     totalAmount: totalAmount,
-                    posterUrl: posterUrl,
-                    slogan: "Chúc bạn có những phút giây thư giãn tuyệt vời!"
+                    posterBytes: posterBytes,
+                    slogan: "Chúc bạn xem phim vui vẻ!"
                 );
             }
             catch
