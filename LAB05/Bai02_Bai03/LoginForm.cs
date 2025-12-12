@@ -1,8 +1,8 @@
 namespace Bai02_Bai03
 {
-    public partial class Form1 : Form
+    public partial class LoginForm : Form
     {
-        public Form1()
+        public LoginForm()
         {
             InitializeComponent();
         }
