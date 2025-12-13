@@ -7,6 +7,11 @@ namespace Bai02_Bai03
         public LoginForm()
         {
             InitializeComponent();
+            txtEmail.Clear();
+            txtPsswrd.Clear();
+            rdIMAP.Checked = true;
+            rdPop3.Checked = false;
+            txtEmail.Focus();
         }
 
         private async void btnOK_Click(object sender, EventArgs e)
@@ -27,6 +32,7 @@ namespace Bai02_Bai03
             }
 
             btnOK.Enabled = false;
+            btnCancel.Enabled = false;
             Cursor = Cursors.WaitCursor;
 
             try
@@ -57,6 +63,12 @@ namespace Bai02_Bai03
             catch (MailKit.Security.AuthenticationException)
             {
                 MessageBox.Show($"Email hoặc mật khẩu không chính xác!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnOK.Enabled = true;
+                btnCancel.Enabled = true;
+                Cursor = Cursors.Default;
             }
         }
 

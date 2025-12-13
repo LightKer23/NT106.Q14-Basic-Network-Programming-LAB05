@@ -157,6 +157,7 @@
             Controls.Add(label1);
             Name = "LoginForm";
             ShowIcon = false;
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Đăng nhập";
             ResumeLayout(false);
             PerformLayout();

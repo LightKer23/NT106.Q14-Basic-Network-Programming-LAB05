@@ -4,8 +4,8 @@ namespace Bai02_Bai03
 {
     public partial class MainForm : Form
     {
-        private readonly MailType protocol;
-        private readonly UserInfo user_info;
+        private MailType protocol;
+        private UserInfo user_info;
 
         public MainForm()
         {
@@ -46,7 +46,7 @@ namespace Bai02_Bai03
                 if (current <= 0)
                     return;
 
-                for (int i = emailCount - current + 1; i <= emailCount; i++)
+                for (int i = emailCount - current; i < emailCount; i++)
                 {
                     var message = await client.GetMessageAsync(i);
                     var item = new ListViewItem(new[]
@@ -92,6 +92,18 @@ namespace Bai02_Bai03
                 }
                 await client.DisconnectAsync(true);
             }
+        }
+
+        private void btnLogOut_Click(object sender, EventArgs e)
+        {
+            listView1.Items.Clear();
+            label1.Text = "Tổng:";
+            label2.Text = "Gần nhất:";
+            user_info.email = null;
+            user_info.password = null;
+            protocol = default;
+            (new LoginForm()).Show();
+            this.Close();
         }
     }
 }
