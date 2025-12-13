@@ -33,8 +33,8 @@
             label3 = new Label();
             label4 = new Label();
             txtEmail = new TextBox();
-            txt = new TextBox();
-            rdSMTP = new RadioButton();
+            txtPsswrd = new TextBox();
+            rdIMAP = new RadioButton();
             rdPop3 = new RadioButton();
             btnOK = new Button();
             btnCancel = new Button();
@@ -88,24 +88,24 @@
             txtEmail.Size = new Size(250, 27);
             txtEmail.TabIndex = 4;
             // 
-            // txt
+            // txtPsswrd
             // 
-            txt.Location = new Point(120, 100);
-            txt.Name = "txt";
-            txt.Size = new Size(250, 27);
-            txt.TabIndex = 5;
-            txt.UseSystemPasswordChar = true;
+            txtPsswrd.Location = new Point(120, 100);
+            txtPsswrd.Name = "txtPsswrd";
+            txtPsswrd.Size = new Size(250, 27);
+            txtPsswrd.TabIndex = 5;
+            txtPsswrd.UseSystemPasswordChar = true;
             // 
-            // rdSMTP
+            // rdIMAP
             // 
-            rdSMTP.AutoSize = true;
-            rdSMTP.Location = new Point(155, 135);
-            rdSMTP.Name = "rdSMTP";
-            rdSMTP.Size = new Size(67, 24);
-            rdSMTP.TabIndex = 6;
-            rdSMTP.TabStop = true;
-            rdSMTP.Text = "SMTP";
-            rdSMTP.UseVisualStyleBackColor = true;
+            rdIMAP.AutoSize = true;
+            rdIMAP.Location = new Point(155, 135);
+            rdIMAP.Name = "rdIMAP";
+            rdIMAP.Size = new Size(65, 24);
+            rdIMAP.TabIndex = 6;
+            rdIMAP.TabStop = true;
+            rdIMAP.Text = "IMAP";
+            rdIMAP.UseVisualStyleBackColor = true;
             // 
             // rdPop3
             // 
@@ -127,6 +127,7 @@
             btnOK.TabIndex = 8;
             btnOK.Text = "OK";
             btnOK.UseVisualStyleBackColor = true;
+            btnOK.Click += btnOK_Click;
             // 
             // btnCancel
             // 
@@ -137,6 +138,7 @@
             btnCancel.TabIndex = 9;
             btnCancel.Text = "Hủy bỏ";
             btnCancel.UseVisualStyleBackColor = true;
+            btnCancel.Click += btnCancel_Click;
             // 
             // LoginForm
             // 
@@ -146,8 +148,8 @@
             Controls.Add(btnCancel);
             Controls.Add(btnOK);
             Controls.Add(rdPop3);
-            Controls.Add(rdSMTP);
-            Controls.Add(txt);
+            Controls.Add(rdIMAP);
+            Controls.Add(txtPsswrd);
             Controls.Add(txtEmail);
             Controls.Add(label4);
             Controls.Add(label3);
@@ -167,8 +169,8 @@
         private Label label3;
         private Label label4;
         private TextBox txtEmail;
-        private TextBox txt;
-        private RadioButton rdSMTP;
+        private TextBox txtPsswrd;
+        private RadioButton rdIMAP;
         private RadioButton rdPop3;
         private Button btnOK;
         private Button btnCancel;

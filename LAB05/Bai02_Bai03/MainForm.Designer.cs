@@ -39,23 +39,29 @@
             // listView1
             // 
             listView1.Columns.AddRange(new ColumnHeader[] { colEmail, colFrom, colTime });
+            listView1.FullRowSelect = true;
+            listView1.GridLines = true;
             listView1.Location = new Point(45, 40);
             listView1.Name = "listView1";
             listView1.Size = new Size(690, 270);
             listView1.TabIndex = 0;
             listView1.UseCompatibleStateImageBehavior = false;
+            listView1.View = View.Details;
             // 
             // colEmail
             // 
             colEmail.Text = "Email";
+            colEmail.Width = 320;
             // 
             // colFrom
             // 
             colFrom.Text = "Từ";
+            colFrom.Width = 220;
             // 
             // colTime
             // 
             colTime.Text = "Thời gian";
+            colTime.Width = 140;
             // 
             // label1
             // 
