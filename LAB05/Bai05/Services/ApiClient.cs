@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Bai05.Models;
+using Bai05.Utils;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using System.Text.Json.Serialization;
 
-namespace Bai05
+namespace Bai05.Services
 {
     internal class ApiClient
     {
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions _jsonOptions;
+
         public ApiClient()
         {
             _httpClient = new HttpClient();
@@ -32,7 +30,6 @@ namespace Bai05
         {
             _httpClient.DefaultRequestHeaders.Authorization = null;
         }
-
 
         #region Helpers
 
@@ -88,8 +85,15 @@ namespace Bai05
                     Content = content
                 };
 
-                if (!url.Contains("/auth/token") && !url.Contains("/auth/refresh") && CurrentUser.IsLoggedIn && !string.IsNullOrEmpty(CurrentUser.User?.token))
+                if (!url.Contains("/auth/token") &&
+                    !url.Contains("/auth/refresh") &&
+                    !url.Contains("/signup") &&
+                    CurrentUser.IsLoggedIn &&
+                    CurrentUser.User != null &&
+                    !string.IsNullOrEmpty(CurrentUser.User.token))
+                {
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.User.token);
+                }
 
                 var resp = await _httpClient.SendAsync(request);
                 var body = await resp.Content.ReadAsStringAsync();
@@ -110,7 +114,7 @@ namespace Bai05
             }
             catch (Exception ex)
             {
-                return ApiResult<TRes>.Fail(ex.Message);
+                return ApiResult<TRes>.Fail($"Lỗi kết nối: {ex.Message}");
             }
         }
 
@@ -147,37 +151,4 @@ namespace Bai05
         }
         #endregion
     }
-}
-
-public class ApiResult<T>
-{
-    public bool Success { get; set; }
-    public string? ErrorMessage { get; set; } = string.Empty;
-    public T? Data { get; set; }
-    public static ApiResult<T> Ok(T data) => new ApiResult<T> { Success = true, Data = data };
-    public static ApiResult<T> Fail(string errorMessage) => new ApiResult<T> { Success = false, ErrorMessage = errorMessage };
-}
-
-public class UserInfo
-{
-    public string username { get; set; } = string.Empty;
-    public string email { get; set; } = string.Empty;
-    public string password { get; set; } = string.Empty;
-    public string? first_name { get; set; } = string.Empty;
-    public string? last_name { get; set; } = string.Empty;
-    public int sex { get; set; }
-    public DateTime? birthday { get; set; }
-    public string? language { get; set; } = string.Empty;
-    public string? phone { get; set; } = string.Empty;
-
-    [JsonIgnore]
-    public string? token { get; set; } = string.Empty;
-}
-
-public class CurrentUser
-{
-    public static UserInfo? User { get; private set; }
-    public static bool IsLoggedIn => User != null;
-    public static void SetUser(UserInfo user) => User = user;
-    public static void ClearUser() => User = null;
 }

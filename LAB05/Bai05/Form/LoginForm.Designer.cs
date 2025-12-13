@@ -28,24 +28,24 @@
         /// </summary>
         private void InitializeComponent()
         {
-            btndangnhap = new Button();
+            btnLogin = new Button();
             txtusername = new TextBox();
             txtpassword = new TextBox();
-            pictureBox1 = new PictureBox();
             lblusername = new Label();
             lblpassword = new Label();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            btnRegister = new Button();
+            btnCancel = new Button();
             SuspendLayout();
             // 
-            // btndangnhap
+            // btnLogin
             // 
-            btndangnhap.Location = new Point(469, 116);
-            btndangnhap.Name = "btndangnhap";
-            btndangnhap.Size = new Size(94, 29);
-            btndangnhap.TabIndex = 1;
-            btndangnhap.Text = "Đăng nhập";
-            btndangnhap.UseVisualStyleBackColor = true;
-            btndangnhap.Click += button1_Click;
+            btnLogin.Location = new Point(469, 116);
+            btnLogin.Name = "btnLogin";
+            btnLogin.Size = new Size(94, 29);
+            btnLogin.TabIndex = 1;
+            btnLogin.Text = "Đăng nhập";
+            btnLogin.UseVisualStyleBackColor = true;
+            btnLogin.Click += button1_Click;
             // 
             // txtusername
             // 
@@ -61,20 +61,10 @@
             txtpassword.Size = new Size(125, 27);
             txtpassword.TabIndex = 3;
             // 
-            // pictureBox1
-            // 
-            pictureBox1.Image = Properties.Resources.Logo_UIT_In;
-            pictureBox1.Location = new Point(12, 12);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(147, 125);
-            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
-            pictureBox1.TabIndex = 4;
-            pictureBox1.TabStop = false;
-            // 
             // lblusername
             // 
             lblusername.AutoSize = true;
-            lblusername.Location = new Point(183, 119);
+            lblusername.Location = new Point(188, 120);
             lblusername.Name = "lblusername";
             lblusername.Size = new Size(32, 20);
             lblusername.TabIndex = 5;
@@ -89,32 +79,52 @@
             lblpassword.TabIndex = 6;
             lblpassword.Text = "Password";
             // 
+            // btnRegister
+            // 
+            btnRegister.Location = new Point(469, 166);
+            btnRegister.Name = "btnRegister";
+            btnRegister.Size = new Size(94, 29);
+            btnRegister.TabIndex = 7;
+            btnRegister.Text = "Đăng ký";
+            btnRegister.UseVisualStyleBackColor = true;
+            btnRegister.Click += btndangky_Click;
+            // 
+            // btnCancel
+            // 
+            btnCancel.Location = new Point(482, 271);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new Size(94, 29);
+            btnCancel.TabIndex = 8;
+            btnCancel.Text = "Thoát";
+            btnCancel.UseVisualStyleBackColor = true;
+            btnCancel.Click += btnthoat_Click;
+            // 
             // LoginForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(btnCancel);
+            Controls.Add(btnRegister);
             Controls.Add(lblpassword);
             Controls.Add(lblusername);
-            Controls.Add(pictureBox1);
             Controls.Add(txtpassword);
             Controls.Add(txtusername);
-            Controls.Add(btndangnhap);
+            Controls.Add(btnLogin);
             Name = "LoginForm";
             Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
 
-        private TextBox txturl;
-        private Button btndangnhap;
+        private Button btnLogin;
         private TextBox txtusername;
         private TextBox txtpassword;
-        private PictureBox pictureBox1;
         private Label lblusername;
         private Label lblpassword;
+        private Button btnRegister;
+        private Button btnCancel;
     }
 }

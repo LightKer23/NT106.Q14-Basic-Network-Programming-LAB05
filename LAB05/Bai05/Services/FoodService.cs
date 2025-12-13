@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Bai05.Models;
 
-namespace Bai05
+namespace Bai05.Services
 {
     internal class FoodService
     {
@@ -115,26 +111,4 @@ namespace Bai05
 }
 
 
-public class DishListResponse<T>
-{
-    public List<T> data { get; set; } = new();
-    public PaginationShow? pagination { get; set; } = new();
-}
 
-public class FoodItem
-{
-    public int id { get; set; }
-    public string? ten_mon_an { get; set; } = string.Empty;
-    public double gia { get; set; }
-    public string? mo_ta { get; set; } = string.Empty;
-    public string? hinh_anh { get; set; } = string.Empty;
-    public string? dia_chi { get; set; } = string.Empty;
-    public string? nguoi_dong_gop { get; set; } = string.Empty;
-}
-
-public class PaginationShow
-{
-    public int current { get; set; }
-    public int pageSize { get; set; }
-    public int total { get; set; }
-}

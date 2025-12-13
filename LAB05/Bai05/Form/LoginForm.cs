@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-
+using Bai05.Utils;
 namespace Bai05
 {
     public partial class LoginForm : Form
@@ -23,9 +23,9 @@ namespace Bai05
                 return;
             }
 
-            //btnLogin.Enabled = false;
-            //btnCancel.Enabled = false;
-            //btnRegister.Enabled = false;
+            btnLogin.Enabled = false;
+            btnCancel.Enabled = false;
+            btnRegister.Enabled = false;
             Cursor = Cursors.WaitCursor;
 
             var login = await Program.authSer.LoginAsync(username, password);
@@ -37,9 +37,9 @@ namespace Bai05
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning);
 
-                //btnLogin.Enabled = true;
-                //btnCancel.Enabled = true;
-                //btnRegister.Enabled = true;
+                btnLogin.Enabled = true;
+                btnCancel.Enabled = true;
+                btnRegister.Enabled = true;
                 Cursor = Cursors.Default;
                 return;
             }
@@ -50,10 +50,21 @@ namespace Bai05
             {
                 CurrentUser.SetUser(me.Data);
             }
-
-            //var main = new MainForm();
-            //main.Show();
+            var main = new MainForm();
+            main.Show();
             this.Hide();
+        }
+
+        private void btndangky_Click(object sender, EventArgs e)
+        {
+            RegisterForm registerForm = new RegisterForm();
+            registerForm.Show();
+        }
+
+        private void btnthoat_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }
+

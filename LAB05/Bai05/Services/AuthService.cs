@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Bai05.Models;
+using Bai05.Utils;
 
-namespace Bai05
+namespace Bai05.Services
 {
     internal class AuthService
     {
         private readonly ApiClient _apiClient;
+
         public AuthService(ApiClient apiClient)
         {
             _apiClient = apiClient;
         }
+
         public async Task<ApiResult<UserInfo>> LoginAsync(string username, string password)
         {
             var form = new FormUrlEncodedContent(new[]
@@ -29,8 +28,8 @@ namespace Bai05
             _apiClient.SetToken(loginResult.Data.token_type, loginResult.Data.access_token);
 
             var meResult = await _apiClient.GetAsync<UserInfo>("/api/v1/user/me");
-            UserInfo userInfo;
 
+            UserInfo userInfo;
             if (meResult.Success && meResult.Data != null)
             {
                 userInfo = meResult.Data;
@@ -72,10 +71,4 @@ namespace Bai05
             return await _apiClient.PostJsonAsync<object, UserInfo>("/api/v1/user/signup", payload);
         }
     }
-}
-
-public class AuthTokenResponse
-{
-    public string access_token { get; set; } = string.Empty;
-    public string token_type { get; set; } = string.Empty;
 }
