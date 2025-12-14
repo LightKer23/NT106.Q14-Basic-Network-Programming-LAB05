@@ -81,7 +81,8 @@ namespace Bai04
         {
             currentMovie = mv;
 
-            movie.Text = mv.Title ?? "";
+            label8.Text = mv.Title ?? "";
+            label8.Visible = true;
             await LoadPosterIntoPictureBoxAsync(mv.PosterUrl);
 
             currentBasePrice = GetBasePriceForMovie(mv.Title);
@@ -93,7 +94,7 @@ namespace Bai04
             RoomComboBox.Enabled = true;
 
             if (RoomComboBox.Items.Count > 0)
-                RoomComboBox.SelectedIndex = 0; 
+                RoomComboBox.SelectedIndex = 0;
 
             BookButton.Enabled = true;
         }
