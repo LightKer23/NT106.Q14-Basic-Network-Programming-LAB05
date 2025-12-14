@@ -71,7 +71,8 @@ namespace Bai05
 
             if (pagination != null)
             {
-                _totalPages = (int)Math.Ceiling(pagination.total / (double)pagination.pageSize);
+                var size = pagination.pageSize > 0 ? pagination.pageSize : _pageSize; // fallback
+                _totalPages = size > 0 ? (int)Math.Ceiling(pagination.total / (double)size) : 1;
                 tsslStatus.Text = $"Tổng: {pagination.total} món | Trang {_currentPage}/{_totalPages}";
             }
             else

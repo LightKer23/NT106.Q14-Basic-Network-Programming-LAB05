@@ -62,7 +62,7 @@
             lblTitle.AutoSize = true;
             lblTitle.Font = new Font("Tahoma", 16.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTitle.ForeColor = Color.FromArgb(64, 64, 64);
-            lblTitle.Location = new Point(12, 20);
+            lblTitle.Location = new Point(100, 21);
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(501, 34);
             lblTitle.TabIndex = 0;
@@ -130,11 +130,11 @@
             btnLoadFromEmail.FlatStyle = FlatStyle.Flat;
             btnLoadFromEmail.Font = new Font("Tahoma", 10.2F, FontStyle.Bold);
             btnLoadFromEmail.ForeColor = SystemColors.ControlText;
-            btnLoadFromEmail.Location = new Point(480, 40);
+            btnLoadFromEmail.Location = new Point(487, 32);
             btnLoadFromEmail.Name = "btnLoadFromEmail";
             btnLoadFromEmail.Size = new Size(200, 45);
             btnLoadFromEmail.TabIndex = 0;
-            btnLoadFromEmail.Text = "📧 Tải từ Email";
+            btnLoadFromEmail.Text = "Tải từ Email";
             btnLoadFromEmail.UseVisualStyleBackColor = false;
             btnLoadFromEmail.Click += btnLoadFromEmail_Click;
             // 

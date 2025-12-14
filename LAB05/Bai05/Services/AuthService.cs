@@ -50,7 +50,7 @@ namespace Bai05.Services
 
         public Task<ApiResult<UserInfo>> GetMeAsync()
         {
-            return _apiClient.GetAsync<UserInfo>("/auth/me");
+            return _apiClient.GetAsync<UserInfo>("/api/v1/user/me");
         }
 
         public async Task<ApiResult<UserInfo>> RegisterAsync(UserInfo userInfo)

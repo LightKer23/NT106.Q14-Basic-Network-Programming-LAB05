@@ -88,7 +88,8 @@ namespace Bai05.Services
             if (!first.Success || first.Data == null)
                 return ApiResult<List<FoodItem>>.Fail(first.ErrorMessage ?? "Không tải được danh sách cá nhân.");
 
-            allFoods.AddRange(first.Data.data);
+            allFoods.AddRange(first.Data.data ?? new List<FoodItem>());
+
 
             var pg = first.Data.pagination;
             if (pg == null)

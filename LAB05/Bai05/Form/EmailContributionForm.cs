@@ -205,21 +205,7 @@ namespace Bai05
                     };
                 }
 
-                // Kiểm tra email đã đăng ký chưa
-                lblStatus.Text = $"Kiểm tra email {senderAddress}...";
-                Application.DoEvents();
-
-                var checkResult = await _emailValidator.CheckEmailRegisteredAsync(senderAddress);
-
-                if (!checkResult.IsRegistered || checkResult.HasError)
-                {
-                    return new EmailProcessResult
-                    {
-                        Success = false,
-                        SenderEmail = senderAddress,
-                        Message = "❌ Email chưa đăng ký trong hệ thống"
-                    };
-                }
+                
 
                 // Parse body email
                 string bodyText = message.TextBody ?? message.HtmlBody ?? "";

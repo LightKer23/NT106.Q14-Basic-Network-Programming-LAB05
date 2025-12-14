@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace Bai05.User_Controls
 {
-    public partial class FoodItemControl : Form
+    public partial class FoodItemControl : UserControl
     {
         private const string BaseUrl = "https://nt106.uitiot.vn";
         private static readonly HttpClient httpClient = new HttpClient();

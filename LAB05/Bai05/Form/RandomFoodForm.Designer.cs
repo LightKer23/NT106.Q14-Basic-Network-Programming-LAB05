@@ -38,17 +38,7 @@ namespace Bai05
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(602, 158);
-            Name = "RandomFoodForm";
-            ShowIcon = false;
-            Text = "RandomFoodForm";
-            Load += RandomFoodForm_Load;
-            ResumeLayout(false);
-            // 
-            // RandomFoodForm
-            // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(602, 158);
+            foodItemControl1 = new Bai05.User_Controls.FoodItemControl();
             Controls.Add(foodItemControl1);
             Name = "RandomFoodForm";
             ShowIcon = false;
