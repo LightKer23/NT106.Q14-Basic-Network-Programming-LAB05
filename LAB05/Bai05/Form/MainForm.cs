@@ -29,17 +29,6 @@ namespace Bai05
 
         private async void MainForm_Load(object sender, EventArgs e)
         {
-            // Hiển thị thông tin user
-            if (CurrentUser.User != null)
-            {
-                tsslWelcome.Text = $"Xin chào, {CurrentUser.User.last_name ?? CurrentUser.User.email}!";
-            }
-            else
-            {
-                tsslWelcome.Text = "Xin chào!";
-            }
-
-            // Khởi tạo page size combo
             cboPageSize.Items.AddRange(new object[] { 6, 12, 18, 24 });
             cboPageSize.SelectedItem = 6;
 
@@ -71,7 +60,7 @@ namespace Bai05
 
             if (pagination != null)
             {
-                var size = pagination.pageSize > 0 ? pagination.pageSize : _pageSize; // fallback
+                var size = pagination.pageSize > 0 ? pagination.pageSize : _pageSize;
                 _totalPages = size > 0 ? (int)Math.Ceiling(pagination.total / (double)size) : 1;
                 tsslStatus.Text = $"Tổng: {pagination.total} món | Trang {_currentPage}/{_totalPages}";
             }
@@ -87,7 +76,6 @@ namespace Bai05
 
         private void RenderFoodCards(List<FoodItem> items)
         {
-            // Clear existing cards
             foreach (Control c in flpFoods.Controls)
                 c.Dispose();
 
@@ -97,7 +85,7 @@ namespace Bai05
             {
                 var lblEmpty = new Label
                 {
-                    Text = "📭 Chưa có món ăn nào.\nHãy thêm món mới hoặc tải từ email!",
+                    Text = "Chưa có món ăn nào.\nHãy thêm món mới hoặc tải từ email!",
                     TextAlign = ContentAlignment.MiddleCenter,
                     AutoSize = false,
                     Width = flpFoods.Width - 20,
@@ -109,13 +97,11 @@ namespace Bai05
                 return;
             }
 
-            // Render food cards
             foreach (var food in items)
             {
                 var card = new FoodItemControl();
                 card.SetData(food);
 
-                // Nếu món này của user hiện tại → hiển thị nút xóa
                 if (food.nguoi_dong_gop == CurrentUser.User?.email)
                 {
                     card.ShowDeleteButton = true;
@@ -152,7 +138,6 @@ namespace Bai05
                 else
                     cboPage.SelectedIndex = 0;
 
-                // Update navigation buttons
                 btnPrevPage.Enabled = _currentPage > 1;
                 btnNextPage.Enabled = _currentPage < _totalPages;
             }
@@ -206,9 +191,7 @@ namespace Bai05
                 {
                     _currentPage = 1;
                     _cacheAllFoods = null;
-                    await LoadAllFoodsAsync();
-                    MessageBox.Show("Đã thêm món thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                    await LoadAllFoodsAsync();                }
             }
         }
 
@@ -229,17 +212,16 @@ namespace Bai05
 
         private async void btnRandom_Click(object sender, EventArgs e)
         {
-            // Load tất cả món (không phân trang) để random
             if (_cacheAllFoods == null)
             {
                 tsslStatus.Text = "Đang tải tất cả món ăn...";
                 toolStripProgressBar.Style = ProgressBarStyle.Marquee;
 
-                var res = await _foodService.GetAllFoodsNoPagingAsync();
+                var res = await _foodService.GetAllFoodsAsync(1, 200);
 
                 toolStripProgressBar.Style = ProgressBarStyle.Blocks;
 
-                if (!res.Success || res.Data == null || res.Data.Count == 0)
+                if (!res.Success || res.Data == null || res.Data.data.Count == 0)
                 {
                     MessageBox.Show(
                         "Không có món ăn nào để chọn!\nHãy thêm món mới hoặc tải từ email.",
@@ -250,7 +232,7 @@ namespace Bai05
                     return;
                 }
 
-                _cacheAllFoods = res.Data;
+                _cacheAllFoods = res.Data.data;
             }
 
             if (_cacheAllFoods.Count == 0)
@@ -263,11 +245,9 @@ namespace Bai05
                 return;
             }
 
-            // Random một món
             var rnd = new Random();
             var chosen = _cacheAllFoods[rnd.Next(_cacheAllFoods.Count)];
 
-            // Hiển thị form chi tiết món được chọn
             using (var frm = new RandomFoodForm(chosen))
             {
                 frm.StartPosition = FormStartPosition.CenterParent;
@@ -304,7 +284,6 @@ namespace Bai05
                 return;
             }
 
-            // Xóa thành công → reload
             _cacheAllFoods = null;
             await LoadAllFoodsAsync();
 

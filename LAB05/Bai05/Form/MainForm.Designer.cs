@@ -37,6 +37,7 @@
             tsslStatus = new ToolStripStatusLabel();
             tsslWelcome = new ToolStripStatusLabel();
             tsslLogout = new ToolStripStatusLabel();
+            toolStripStatusLabel1 = new ToolStripStatusLabel();
             pnlTop.SuspendLayout();
             pnlMain.SuspendLayout();
             pnlBottom.SuspendLayout();
@@ -126,11 +127,11 @@
             // lblTitle
             // 
             lblTitle.AutoSize = true;
-            lblTitle.Font = new Font("Tahoma", 19.8000011F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblTitle.Font = new Font("Tahoma", 22.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
             lblTitle.ForeColor = SystemColors.ControlText;
             lblTitle.Location = new Point(37, 33);
             lblTitle.Name = "lblTitle";
-            lblTitle.Size = new Size(293, 41);
+            lblTitle.Size = new Size(353, 45);
             lblTitle.TabIndex = 0;
             lblTitle.Text = "HÔM NAY ĂN GÌ? ";
             // 
@@ -210,7 +211,7 @@
             cboPageSize.DropDownStyle = ComboBoxStyle.DropDownList;
             cboPageSize.Font = new Font("Tahoma", 7.8F);
             cboPageSize.FormattingEnabled = true;
-            cboPageSize.Location = new Point(903, 16);
+            cboPageSize.Location = new Point(903, 21);
             cboPageSize.Margin = new Padding(3, 4, 3, 4);
             cboPageSize.Name = "cboPageSize";
             cboPageSize.Size = new Size(91, 24);
@@ -222,7 +223,7 @@
             lblPageSize.Anchor = AnchorStyles.None;
             lblPageSize.AutoSize = true;
             lblPageSize.Font = new Font("Tahoma", 10.2F);
-            lblPageSize.Location = new Point(823, 20);
+            lblPageSize.Location = new Point(826, 23);
             lblPageSize.Name = "lblPageSize";
             lblPageSize.Size = new Size(71, 21);
             lblPageSize.TabIndex = 2;
@@ -234,7 +235,7 @@
             cboPage.DropDownStyle = ComboBoxStyle.DropDownList;
             cboPage.Font = new Font("Tahoma", 7.8F);
             cboPage.FormattingEnabled = true;
-            cboPage.Location = new Point(514, 16);
+            cboPage.Location = new Point(547, 21);
             cboPage.Margin = new Padding(3, 4, 3, 4);
             cboPage.Name = "cboPage";
             cboPage.Size = new Size(114, 24);
@@ -246,7 +247,7 @@
             lblPage.Anchor = AnchorStyles.None;
             lblPage.AutoSize = true;
             lblPage.Font = new Font("Tahoma", 10.2F);
-            lblPage.Location = new Point(451, 20);
+            lblPage.Location = new Point(482, 23);
             lblPage.Name = "lblPage";
             lblPage.Size = new Size(59, 21);
             lblPage.TabIndex = 0;
@@ -256,7 +257,7 @@
             // 
             statusStrip.Font = new Font("Tahoma", 7.8F);
             statusStrip.ImageScalingSize = new Size(20, 20);
-            statusStrip.Items.AddRange(new ToolStripItem[] { toolStripProgressBar, tsslStatus, tsslWelcome, tsslLogout });
+            statusStrip.Items.AddRange(new ToolStripItem[] { toolStripProgressBar, tsslStatus, tsslWelcome, tsslLogout, toolStripStatusLabel1 });
             statusStrip.Location = new Point(0, 830);
             statusStrip.Name = "statusStrip";
             statusStrip.Padding = new Padding(1, 0, 16, 0);
@@ -297,6 +298,12 @@
             tsslLogout.Text = "Đăng xuất";
             tsslLogout.VisitedLinkColor = SystemColors.ControlText;
             tsslLogout.Click += tsslLogout_Click;
+            // 
+            // toolStripStatusLabel1
+            // 
+            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            toolStripStatusLabel1.Size = new Size(128, 23);
+            toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // MainForm
             // 
@@ -347,5 +354,6 @@
         private System.Windows.Forms.Button btnNextPage;
         private System.Windows.Forms.Button btnPrevPage;
         private System.Windows.Forms.Button btnRefresh;
+        private ToolStripStatusLabel toolStripStatusLabel1;
     }
 }

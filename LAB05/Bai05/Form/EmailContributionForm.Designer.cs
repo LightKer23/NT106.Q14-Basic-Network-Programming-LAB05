@@ -31,6 +31,8 @@
             panel1 = new Panel();
             lblTitle = new Label();
             groupBox1 = new GroupBox();
+            txtGmail = new TextBox();
+            label3 = new Label();
             lnkAppPasswordGuide = new LinkLabel();
             label2 = new Label();
             txtAppPassword = new TextBox();
@@ -41,6 +43,8 @@
             statusStrip1 = new StatusStrip();
             lblStatus = new ToolStripStatusLabel();
             progressBar1 = new ToolStripProgressBar();
+            toolStripStatusLabel1 = new ToolStripStatusLabel();
+            toolStripStatusLabel2 = new ToolStripStatusLabel();
             panel1.SuspendLayout();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
@@ -61,7 +65,7 @@
             // 
             lblTitle.AutoSize = true;
             lblTitle.Font = new Font("Tahoma", 16.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            lblTitle.ForeColor = Color.FromArgb(64, 64, 64);
+            lblTitle.ForeColor = SystemColors.ControlText;
             lblTitle.Location = new Point(100, 21);
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(501, 34);
@@ -70,13 +74,15 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(txtGmail);
+            groupBox1.Controls.Add(label3);
             groupBox1.Controls.Add(lnkAppPasswordGuide);
             groupBox1.Controls.Add(label2);
             groupBox1.Controls.Add(txtAppPassword);
             groupBox1.Controls.Add(label1);
             groupBox1.Controls.Add(btnLoadFromEmail);
             groupBox1.Dock = DockStyle.Top;
-            groupBox1.Font = new Font("Tahoma", 9F);
+            groupBox1.Font = new Font("Tahoma", 10.2F, FontStyle.Regular, GraphicsUnit.Point, 0);
             groupBox1.Location = new Point(0, 70);
             groupBox1.Name = "groupBox1";
             groupBox1.Padding = new Padding(10);
@@ -85,12 +91,29 @@
             groupBox1.TabStop = false;
             groupBox1.Text = "Cấu hình Gmail";
             // 
+            // txtGmail
+            // 
+            txtGmail.Location = new Point(13, 50);
+            txtGmail.Name = "txtGmail";
+            txtGmail.Size = new Size(202, 28);
+            txtGmail.TabIndex = 6;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Tahoma", 10.2F);
+            label3.Location = new Point(13, 26);
+            label3.Name = "label3";
+            label3.Size = new Size(58, 21);
+            label3.TabIndex = 5;
+            label3.Text = "Gmail:";
+            // 
             // lnkAppPasswordGuide
             // 
             lnkAppPasswordGuide.AutoSize = true;
             lnkAppPasswordGuide.Location = new Point(13, 105);
             lnkAppPasswordGuide.Name = "lnkAppPasswordGuide";
-            lnkAppPasswordGuide.Size = new Size(328, 18);
+            lnkAppPasswordGuide.Size = new Size(366, 21);
             lnkAppPasswordGuide.TabIndex = 4;
             lnkAppPasswordGuide.TabStop = true;
             lnkAppPasswordGuide.Text = "🔗 Hướng dẫn tạo App Password (Click vào đây)";
@@ -102,25 +125,25 @@
             label2.ForeColor = Color.Gray;
             label2.Location = new Point(13, 80);
             label2.Name = "label2";
-            label2.Size = new Size(534, 18);
+            label2.Size = new Size(606, 21);
             label2.TabIndex = 3;
             label2.Text = "Lưu ý: Không dùng password thường, phải tạo App Password tại Google Account";
             // 
             // txtAppPassword
             // 
-            txtAppPassword.Font = new Font("Consolas", 10.2F);
-            txtAppPassword.Location = new Point(13, 50);
+            txtAppPassword.Font = new Font("Tahoma", 10.2F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            txtAppPassword.Location = new Point(239, 49);
             txtAppPassword.Name = "txtAppPassword";
-            txtAppPassword.PlaceholderText = "Nhập 16 ký tự App Password (không có khoảng trắng)";
-            txtAppPassword.Size = new Size(450, 27);
+            txtAppPassword.Size = new Size(202, 28);
             txtAppPassword.TabIndex = 2;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(13, 29);
+            label1.Font = new Font("Tahoma", 10.2F);
+            label1.Location = new Point(239, 26);
             label1.Name = "label1";
-            label1.Size = new Size(144, 18);
+            label1.Size = new Size(168, 21);
             label1.TabIndex = 1;
             label1.Text = "Gmail App Password:";
             // 
@@ -128,7 +151,7 @@
             // 
             btnLoadFromEmail.BackColor = Color.Transparent;
             btnLoadFromEmail.FlatStyle = FlatStyle.Flat;
-            btnLoadFromEmail.Font = new Font("Tahoma", 10.2F, FontStyle.Bold);
+            btnLoadFromEmail.Font = new Font("Tahoma", 10.2F);
             btnLoadFromEmail.ForeColor = SystemColors.ControlText;
             btnLoadFromEmail.Location = new Point(487, 32);
             btnLoadFromEmail.Name = "btnLoadFromEmail";
@@ -142,11 +165,11 @@
             // 
             groupBox2.Controls.Add(lstResults);
             groupBox2.Dock = DockStyle.Fill;
-            groupBox2.Font = new Font("Tahoma", 9F);
+            groupBox2.Font = new Font("Tahoma", 10.2F, FontStyle.Regular, GraphicsUnit.Point, 0);
             groupBox2.Location = new Point(0, 210);
             groupBox2.Name = "groupBox2";
             groupBox2.Padding = new Padding(10);
-            groupBox2.Size = new Size(700, 264);
+            groupBox2.Size = new Size(700, 263);
             groupBox2.TabIndex = 2;
             groupBox2.TabStop = false;
             groupBox2.Text = "Kết quả xử lý";
@@ -157,31 +180,47 @@
             lstResults.Font = new Font("Consolas", 9F);
             lstResults.FormattingEnabled = true;
             lstResults.ItemHeight = 18;
-            lstResults.Location = new Point(10, 29);
+            lstResults.Location = new Point(10, 31);
             lstResults.Name = "lstResults";
-            lstResults.Size = new Size(680, 225);
+            lstResults.Size = new Size(680, 222);
             lstResults.TabIndex = 0;
             // 
             // statusStrip1
             // 
             statusStrip1.ImageScalingSize = new Size(20, 20);
-            statusStrip1.Items.AddRange(new ToolStripItem[] { lblStatus, progressBar1 });
-            statusStrip1.Location = new Point(0, 474);
+            statusStrip1.Items.AddRange(new ToolStripItem[] { lblStatus, progressBar1, toolStripStatusLabel1, toolStripStatusLabel2 });
+            statusStrip1.Location = new Point(0, 473);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(700, 26);
+            statusStrip1.Size = new Size(700, 27);
             statusStrip1.TabIndex = 3;
             statusStrip1.Text = "statusStrip1";
             // 
             // lblStatus
             // 
+            lblStatus.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             lblStatus.Name = "lblStatus";
-            lblStatus.Size = new Size(68, 20);
+            lblStatus.Size = new Size(68, 21);
             lblStatus.Text = "Sẵn sàng";
             // 
             // progressBar1
             // 
+            progressBar1.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             progressBar1.Name = "progressBar1";
-            progressBar1.Size = new Size(150, 18);
+            progressBar1.Size = new Size(150, 19);
+            // 
+            // toolStripStatusLabel1
+            // 
+            toolStripStatusLabel1.Font = new Font("Tahoma", 10.2F);
+            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            toolStripStatusLabel1.Size = new Size(167, 21);
+            toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            // 
+            // toolStripStatusLabel2
+            // 
+            toolStripStatusLabel2.Font = new Font("Tahoma", 10.2F);
+            toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+            toolStripStatusLabel2.Size = new Size(167, 21);
+            toolStripStatusLabel2.Text = "toolStripStatusLabel2";
             // 
             // EmailContributionForm
             // 
@@ -224,5 +263,9 @@
         private StatusStrip statusStrip1;
         private ToolStripStatusLabel lblStatus;
         private ToolStripProgressBar progressBar1;
+        private TextBox txtGmail;
+        private Label label3;
+        private ToolStripStatusLabel toolStripStatusLabel1;
+        private ToolStripStatusLabel toolStripStatusLabel2;
     }
 }
