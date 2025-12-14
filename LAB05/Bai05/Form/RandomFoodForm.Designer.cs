@@ -1,4 +1,5 @@
-﻿using Bai05.User_Controls;
+﻿using Bai05;
+using Bai05.User_Controls;
 
 namespace Bai05
 {
@@ -42,8 +43,22 @@ namespace Bai05
             Text = "RandomFoodForm";
             Load += RandomFoodForm_Load;
             ResumeLayout(false);
+            // 
+            // RandomFoodForm
+            // 
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(602, 158);
+            Controls.Add(foodItemControl1);
+            Name = "RandomFoodForm";
+            ShowIcon = false;
+            Text = "RandomFoodForm";
+            Load += RandomFoodForm_Load;
+            ResumeLayout(false);
         }
 
         #endregion
+
+        private FoodItemControl foodItemControl1;
     }
 }

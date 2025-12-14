@@ -14,11 +14,6 @@ namespace Bai05
     public partial class RandomFoodForm : Form
     {
         private readonly FoodItem _food;
-
-        public RandomFoodForm()
-        {
-            InitializeComponent();
-        }
         public RandomFoodForm(FoodItem food)
         {
             InitializeComponent();
