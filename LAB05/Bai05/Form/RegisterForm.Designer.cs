@@ -45,15 +45,15 @@
             btnCancel = new Button();
             splitContainer1 = new SplitContainer();
             pictureBox1 = new PictureBox();
+            comboBox1 = new ComboBox();
+            lblLanguage = new Label();
+            dateTimePicker1 = new DateTimePicker();
+            lblDoB = new Label();
             lblSex = new Label();
             rdBtnFemale = new RadioButton();
             rdBtnMale = new RadioButton();
             lblsubtitle = new Label();
             lbltitle = new Label();
-            lblDoB = new Label();
-            dateTimePicker1 = new DateTimePicker();
-            lblLanguage = new Label();
-            comboBox1 = new ComboBox();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -272,6 +272,43 @@
             pictureBox1.TabIndex = 15;
             pictureBox1.TabStop = false;
             // 
+            // comboBox1
+            // 
+            comboBox1.FormattingEnabled = true;
+            comboBox1.Items.AddRange(new object[] { "vi", "en" });
+            comboBox1.Location = new Point(171, 354);
+            comboBox1.Name = "comboBox1";
+            comboBox1.Size = new Size(189, 28);
+            comboBox1.TabIndex = 22;
+            // 
+            // lblLanguage
+            // 
+            lblLanguage.AutoSize = true;
+            lblLanguage.Font = new Font("Tahoma", 10.2F);
+            lblLanguage.Location = new Point(39, 357);
+            lblLanguage.Name = "lblLanguage";
+            lblLanguage.Size = new Size(87, 21);
+            lblLanguage.TabIndex = 21;
+            lblLanguage.Text = "Ngôn ngữ:";
+            // 
+            // dateTimePicker1
+            // 
+            dateTimePicker1.Format = DateTimePickerFormat.Custom;
+            dateTimePicker1.Location = new Point(171, 321);
+            dateTimePicker1.Name = "dateTimePicker1";
+            dateTimePicker1.Size = new Size(189, 27);
+            dateTimePicker1.TabIndex = 20;
+            // 
+            // lblDoB
+            // 
+            lblDoB.AutoSize = true;
+            lblDoB.Font = new Font("Tahoma", 10.2F);
+            lblDoB.Location = new Point(39, 326);
+            lblDoB.Name = "lblDoB";
+            lblDoB.Size = new Size(88, 21);
+            lblDoB.TabIndex = 19;
+            lblDoB.Text = "Ngày sinh:";
+            // 
             // lblSex
             // 
             lblSex.AutoSize = true;
@@ -324,43 +361,6 @@
             lbltitle.TabIndex = 0;
             lbltitle.Text = "HÔM NAY ĂN GÌ?";
             // 
-            // lblDoB
-            // 
-            lblDoB.AutoSize = true;
-            lblDoB.Font = new Font("Tahoma", 10.2F);
-            lblDoB.Location = new Point(39, 326);
-            lblDoB.Name = "lblDoB";
-            lblDoB.Size = new Size(88, 21);
-            lblDoB.TabIndex = 19;
-            lblDoB.Text = "Ngày sinh:";
-            // 
-            // dateTimePicker1
-            // 
-            dateTimePicker1.Format = DateTimePickerFormat.Custom;
-            dateTimePicker1.Location = new Point(171, 321);
-            dateTimePicker1.Name = "dateTimePicker1";
-            dateTimePicker1.Size = new Size(189, 27);
-            dateTimePicker1.TabIndex = 20;
-            // 
-            // lblLanguage
-            // 
-            lblLanguage.AutoSize = true;
-            lblLanguage.Font = new Font("Tahoma", 10.2F);
-            lblLanguage.Location = new Point(39, 357);
-            lblLanguage.Name = "lblLanguage";
-            lblLanguage.Size = new Size(87, 21);
-            lblLanguage.TabIndex = 21;
-            lblLanguage.Text = "Ngôn ngữ:";
-            // 
-            // comboBox1
-            // 
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Items.AddRange(new object[] { "vi", "en" });
-            comboBox1.Location = new Point(171, 354);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(189, 28);
-            comboBox1.TabIndex = 22;
-            // 
             // RegisterForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -368,7 +368,7 @@
             ClientSize = new Size(398, 622);
             Controls.Add(splitContainer1);
             Name = "RegisterForm";
-            Text = "RegisterForm";
+            Text = "Đăng ký";
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             splitContainer1.Panel2.PerformLayout();

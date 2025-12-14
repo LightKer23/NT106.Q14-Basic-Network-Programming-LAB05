@@ -114,7 +114,6 @@
             txtAppPassword.PlaceholderText = "Nhập 16 ký tự App Password (không có khoảng trắng)";
             txtAppPassword.Size = new Size(450, 27);
             txtAppPassword.TabIndex = 2;
-            txtAppPassword.UseSystemPasswordChar = true;
             // 
             // label1
             // 

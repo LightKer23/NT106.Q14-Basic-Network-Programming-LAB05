@@ -4,18 +4,13 @@ using Bai05.Utils;
 using MailKit;
 using MailKit.Net.Imap;
 using MailKit.Search;
-using Org.BouncyCastle.Asn1.Cmp;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Bai05
 {
@@ -23,6 +18,7 @@ namespace Bai05
     {
         private readonly FoodService _foodService;
         private readonly EmailValidatorService _emailValidator;
+
         public EmailContributionForm()
         {
             InitializeComponent();
@@ -85,11 +81,34 @@ namespace Bai05
 
                 MessageBox.Show(
                     $"Đã xử lý {results.Count} email\n" +
-                    $"✅ Thành công: {totalSuccess}\n" +
-                    $"❌ Thất bại: {totalFailed}",
+                    $"Thành công: {totalSuccess}\n" +
+                    $"Thất bại: {totalFailed}",
                     "Kết quả",
+                    MessageBoxButtons.OK);
+
+                // Đặt DialogResult để MainForm biết cần refresh
+                this.DialogResult = DialogResult.OK;
+            }
+            catch (MailKit.Security.AuthenticationException)
+            {
+                progressBar1.Style = ProgressBarStyle.Blocks;
+                lblStatus.Text = "Lỗi xác thực Gmail";
+
+                MessageBox.Show(
+                    "Lỗi xác thực Gmail!\n\n" +
+                    "Vui lòng kiểm tra:\n\n" +
+                    "1️.Đã BẬT IMAP trong Gmail:\n" +
+                    "   • Vào Gmail->Settings->See all settings\n" +
+                    "   • Tab: Forwarding and POP/IMAP\n" +
+                    "   • IMAP access: Enable IMAP\n" +
+                    "   • IMAP settings: Tắt tự động xóa\n\n" +
+                    "2️. Đang dùng App Password (16 ký tự):\n" +
+                    "   • KHÔNG dùng mật khẩu Gmail thường\n" +
+                    "   • Tạo tại: https://myaccount.google.com/apppasswords\n\n" +
+                    "3️. Email đúng format: example@gmail.com",
+                    "Lỗi xác thực",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
+                    MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
@@ -105,41 +124,42 @@ namespace Bai05
         }
 
         private async Task<List<EmailProcessResult>> LoadEmailContributionsAsync(
-            string server, int port, string email, string password)
+    string server, int port, string email, string password)
         {
             var results = new List<EmailProcessResult>();
 
             using (var client = new ImapClient())
             {
-                // Kết nối đến Gmail IMAP
                 await client.ConnectAsync(server, port, true);
                 await client.AuthenticateAsync(email, password);
 
                 lblStatus.Text = "Đã kết nối. Đang đọc email...";
+                Application.DoEvents();
 
                 var inbox = client.Inbox;
                 await inbox.OpenAsync(FolderAccess.ReadWrite);
 
-                // Tìm email chưa đọc
-                var uids = await inbox.SearchAsync(SearchQuery.NotSeen);
+                var query = SearchQuery.SubjectContains("Đóng góp món ăn")
+                    .And(SearchQuery.DeliveredAfter(DateTime.Now.AddDays(-7)));
+                var uids = await inbox.SearchAsync(query);
 
-                lblStatus.Text = $"Tìm thấy {uids.Count} email chưa đọc. Đang xử lý...";
+                lblStatus.Text = $"Tìm thấy {uids.Count} email đóng góp. Đang xử lý...";
+                Application.DoEvents();
 
+                int currentIndex = 0;
                 foreach (var uid in uids)
                 {
+                    currentIndex++;
+                    lblStatus.Text = $"Đang xử lý email {currentIndex}/{uids.Count}...";
+                    Application.DoEvents();
+
                     try
                     {
                         var message = await inbox.GetMessageAsync(uid);
 
-                        // Kiểm tra Title có chứa "Đóng góp món ăn"
-                        if (!IsValidTitle(message.Subject))
-                            continue;
-
-                        // Xử lý email này
                         var result = await ProcessEmailAsync(message);
                         results.Add(result);
 
-                        // Đánh dấu đã đọc
                         await inbox.AddFlagsAsync(uid, MessageFlags.Seen, true);
                     }
                     catch (Exception ex)
@@ -172,7 +192,6 @@ namespace Bai05
         {
             try
             {
-                // Lấy email người gửi
                 var senderAddress = message.From.Mailboxes.FirstOrDefault()?.Address ?? "";
                 var senderName = message.From.Mailboxes.FirstOrDefault()?.Name ?? "Người ẩn danh";
 
@@ -182,12 +201,14 @@ namespace Bai05
                     {
                         Success = false,
                         SenderEmail = "Unknown",
-                        Message = "Không xác định được email người gửi"
+                        Message = "❌ Không xác định được email người gửi"
                     };
                 }
 
                 // Kiểm tra email đã đăng ký chưa
                 lblStatus.Text = $"Kiểm tra email {senderAddress}...";
+                Application.DoEvents();
+
                 var checkResult = await _emailValidator.CheckEmailRegisteredAsync(senderAddress);
 
                 if (!checkResult.IsRegistered || checkResult.HasError)
@@ -196,7 +217,7 @@ namespace Bai05
                     {
                         Success = false,
                         SenderEmail = senderAddress,
-                        Message = "Email chưa đăng ký trong hệ thống"
+                        Message = "❌ Email chưa đăng ký trong hệ thống"
                     };
                 }
 
@@ -210,36 +231,67 @@ namespace Bai05
                     {
                         Success = false,
                         SenderEmail = senderAddress,
-                        Message = "Không tìm thấy món ăn hợp lệ trong email"
+                        Message = "❌ Không tìm thấy món ăn hợp lệ trong email"
                     };
                 }
 
-                // Thêm các món ăn vào database
+                // Thêm các món ăn vào database (KHÔNG KIỂM TRA TRÙNG)
                 lblStatus.Text = $"Đang thêm {foods.Count} món ăn...";
+                Application.DoEvents();
+
                 int successCount = 0;
+                var errors = new List<string>(); // Lưu các lỗi
 
                 foreach (var food in foods)
                 {
+                    // VALIDATE trước khi gọi API
+                    if (string.IsNullOrWhiteSpace(food.Name))
+                    {
+                        System.Diagnostics.Debug.WriteLine("❌ Bỏ qua: Tên món rỗng");
+                        continue;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(food.ImageUrl) || food.ImageUrl.Length > 500)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"❌ Bỏ qua [{food.Name}]: URL không hợp lệ hoặc quá dài");
+                        continue;
+                    }
+
+                    // ĐẢM BẢO KHÔNG CÓ NULL
                     var addResult = await _foodService.AddFoodAsync(
                         food.Name,
                         food.Price,
-                        food.Description,
+                        food.Description ?? "Món ăn ngon",  // ← Không null
                         food.ImageUrl,
-                        food.Address
+                        food.Address ?? "TP.HCM"             // ← Không null
                     );
 
                     if (addResult.Success)
+                    {
                         successCount++;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"❌ Lỗi [{food.Name}]: {addResult.ErrorMessage}");
+                    }
+                }
+
+                // Tạo message kết quả
+                string resultMsg = $"Đã thêm {successCount}/{foods.Count} món";
+
+                if (errors.Count > 0)
+                {
+                    resultMsg += $"\n\nLỗi ({errors.Count} món):\n" + string.Join("\n", errors);
                 }
 
                 return new EmailProcessResult
                 {
-                    Success = true,
+                    Success = successCount > 0,
                     SenderEmail = senderAddress,
                     SenderName = senderName,
                     FoodCount = foods.Count,
                     SuccessCount = successCount,
-                    Message = $"Đã thêm {successCount}/{foods.Count} món ăn"
+                    Message = resultMsg
                 };
             }
             catch (Exception ex)
@@ -263,8 +315,6 @@ namespace Bai05
                 if (string.IsNullOrEmpty(trimmed))
                     continue;
 
-                // Format: <tên món>;<url hình>
-                // Hoặc: <tên món>;<url hình>;<giá>;<địa chỉ>;<mô tả>
                 var parts = trimmed.Split(';');
 
                 if (parts.Length < 2)
@@ -273,17 +323,33 @@ namespace Bai05
                 var food = new FoodContribution
                 {
                     Name = parts[0].Trim(),
-                    ImageUrl = parts[1].Trim()
+                    ImageUrl = parts[1].Trim(),
+                    // THÊM GIÁ TRỊ MẶC ĐỊNH
+                    Description = "Món ăn ngon", // MẶC ĐỊNH
+                    Address = "TP. Hồ Chí Minh",  // MẶC ĐỊNH
+                    Price = 0
                 };
 
+                // Parse giá (nếu có)
                 if (parts.Length >= 3 && int.TryParse(parts[2].Trim(), out int price))
                     food.Price = price;
 
-                if (parts.Length >= 4)
+                // Parse địa chỉ (nếu có) - GHI ĐÈ giá trị mặc định
+                if (parts.Length >= 4 && !string.IsNullOrWhiteSpace(parts[3]))
                     food.Address = parts[3].Trim();
 
-                if (parts.Length >= 5)
+                // Parse mô tả (nếu có) - GHI ĐÈ giá trị mặc định
+                if (parts.Length >= 5 && !string.IsNullOrWhiteSpace(parts[4]))
                     food.Description = parts[4].Trim();
+
+                // QUAN TRỌNG: Kiểm tra URL hợp lệ
+                if (string.IsNullOrWhiteSpace(food.ImageUrl) ||
+                    (!food.ImageUrl.StartsWith("http://") && !food.ImageUrl.StartsWith("https://")))
+                {
+                    // URL không hợp lệ → bỏ qua món này
+                    System.Diagnostics.Debug.WriteLine($"❌ Bỏ qua món [{food.Name}]: URL không hợp lệ");
+                    continue;
+                }
 
                 foods.Add(food);
             }
@@ -293,11 +359,11 @@ namespace Bai05
 
         private string RemoveDiacritics(string text)
         {
-            string normalized = text.Normalize(System.Text.NormalizationForm.FormD);
+            string normalized = text.Normalize(NormalizationForm.FormD);
             var chars = normalized.Where(c =>
                 System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c)
                 != System.Globalization.UnicodeCategory.NonSpacingMark);
-            return new string(chars.ToArray()).Normalize(System.Text.NormalizationForm.FormC);
+            return new string(chars.ToArray()).Normalize(NormalizationForm.FormC);
         }
 
         private void lnkAppPasswordGuide_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

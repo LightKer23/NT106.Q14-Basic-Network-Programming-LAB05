@@ -66,18 +66,18 @@
             lblusername.AutoSize = true;
             lblusername.Location = new Point(188, 120);
             lblusername.Name = "lblusername";
-            lblusername.Size = new Size(32, 20);
+            lblusername.Size = new Size(35, 20);
             lblusername.TabIndex = 5;
-            lblusername.Text = "Tên";
+            lblusername.Text = "Tên:";
             // 
             // lblpassword
             // 
             lblpassword.AutoSize = true;
             lblpassword.Location = new Point(188, 175);
             lblpassword.Name = "lblpassword";
-            lblpassword.Size = new Size(70, 20);
+            lblpassword.Size = new Size(73, 20);
             lblpassword.TabIndex = 6;
-            lblpassword.Text = "Password";
+            lblpassword.Text = "Mật khẩu:";
             // 
             // btnRegister
             // 
@@ -112,7 +112,7 @@
             Controls.Add(txtusername);
             Controls.Add(btnLogin);
             Name = "LoginForm";
-            Text = "Form1";
+            Text = "Đăng nhập";
             ResumeLayout(false);
             PerformLayout();
         }
