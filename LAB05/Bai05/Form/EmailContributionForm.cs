@@ -342,14 +342,12 @@ namespace Bai05
                 }
                 else
                 {
-                    // line là phần tiếp của URL / phần tiếp record => nối thẳng (không thêm newline)
                     cur += line;
                 }
             }
             if (!string.IsNullOrWhiteSpace(cur))
                 records.Add(cur);
 
-            // 2) Parse từng record: Ten;Url;Gia;DiaChi
             foreach (var rec in records)
             {
                 var parts = rec.Split(';');

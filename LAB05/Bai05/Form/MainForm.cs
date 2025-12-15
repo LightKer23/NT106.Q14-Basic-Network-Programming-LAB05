@@ -23,7 +23,6 @@ namespace Bai05
 
         private bool _isUpdatingPageCombo = false;
 
-        // cache phục vụ Random
         private List<FoodItem>? _cacheAllFoods = null;
         private List<FoodItem>? _cacheMyFoods = null;
 
@@ -41,6 +40,8 @@ namespace Bai05
         {
             cboPageSize.Items.AddRange(new object[] { 6, 12, 18, 24 });
             cboPageSize.SelectedItem = 6;
+            flpFoods.FlowDirection = FlowDirection.TopDown;
+            flpFoods.WrapContents = false;
 
             await ReloadCurrentTabAsync();
         }
@@ -51,19 +52,44 @@ namespace Bai05
             panel.Controls.Clear();
         }
 
-        private Label MakeEmptyLabel(string? text = null)
+        private Control MakeEmptyBlock(FlowLayoutPanel host, string text)
         {
-            return new Label
+            int w = host.ClientSize.Width
+                    - host.Padding.Horizontal
+                    - SystemInformation.VerticalScrollBarWidth
+                    - 5;
+
+            var box = new Panel
             {
-                Text = text ?? "Chưa có món ăn nào.",
+                Width = Math.Max(200, w),
+                Height = 180,
+                Margin = new Padding(10),
+                BackColor = Color.Transparent
+            };
+
+            var lbl = new Label
+            {
+                Text = text,
+                Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter,
-                AutoSize = false,
-                Dock = DockStyle.Top,
-                Height = 120,
                 Font = new Font("Segoe UI", 14, FontStyle.Italic),
                 ForeColor = Color.Gray
             };
+
+            box.Controls.Add(lbl);
+
+            host.SizeChanged += (_, __) =>
+            {
+                int nw = host.ClientSize.Width
+                         - host.Padding.Horizontal
+                         - SystemInformation.VerticalScrollBarWidth
+                         - 5;
+                box.Width = Math.Max(200, nw);
+            };
+
+            return box;
         }
+
 
         private async Task LoadCommunityAsync()
         {
@@ -95,7 +121,7 @@ namespace Bai05
             var items = d.data ?? new List<FoodItem>();
             if (items.Count == 0)
             {
-                flpFoods.Controls.Add(MakeEmptyLabel());
+                flpFoods.Controls.Add(MakeEmptyBlock(flpFoods, "Bạn chưa có món nào.\nHãy thêm món hoặc tải từ Email!"));
             }
             else
             {
@@ -103,7 +129,7 @@ namespace Bai05
                 {
                     var card = new FoodItemControl();
                     card.SetData(food);
-                    card.ShowDeleteButton = false; // cộng đồng không xóa
+                    card.ShowDeleteButton = false; 
                     flpFoods.Controls.Add(card);
                 }
             }
@@ -116,7 +142,6 @@ namespace Bai05
 
         private async Task LoadMineAsync()
         {
-            // tab cá nhân bắt buộc có token
             if (string.IsNullOrWhiteSpace(CurrentUser.User?.token))
             {
                 MessageBox.Show("Bạn cần đăng nhập lại (thiếu token).", "Lỗi",
@@ -152,7 +177,7 @@ namespace Bai05
             var items = d.data ?? new List<FoodItem>();
             if (items.Count == 0)
             {
-                flpFoods.Controls.Add(MakeEmptyLabel("Bạn chưa có món nào.\nHãy thêm món hoặc tải từ Email!"));
+                flpFoods.Controls.Add(MakeEmptyBlock(flpFoods, "Bạn chưa có món nào.\nHãy thêm món hoặc tải từ Email!"));
             }
             else
             {
@@ -297,7 +322,6 @@ namespace Bai05
             }
         }
 
-        // ✅ FIX lỗi designer đang gọi btnRandom_Click
         private async void btnRandom_Click(object sender, EventArgs e)
         {
             List<FoodItem> list;
