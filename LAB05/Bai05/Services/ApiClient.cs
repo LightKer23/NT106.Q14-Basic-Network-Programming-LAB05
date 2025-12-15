@@ -122,10 +122,17 @@ namespace Bai05.Services
         {
             try
             {
-                var resp = await _httpClient.DeleteAsync(url);
+                var req = new HttpRequestMessage(HttpMethod.Delete, url);
+
+                if (CurrentUser.IsLoggedIn && !string.IsNullOrWhiteSpace(CurrentUser.User?.token))
+                    req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", CurrentUser.User.token);
+
+                var resp = await _httpClient.SendAsync(req);
                 var body = await resp.Content.ReadAsStringAsync();
+
                 if (!resp.IsSuccessStatusCode)
-                    return ApiResult<bool>.Fail(body);
+                    return ApiResult<bool>.Fail($"Lỗi {resp.StatusCode}: {body}");
+
                 return ApiResult<bool>.Ok(true);
             }
             catch (Exception ex)
@@ -133,6 +140,7 @@ namespace Bai05.Services
                 return ApiResult<bool>.Fail(ex.Message);
             }
         }
+
 
         private string ParseErrorMessage(string responseBody)
         {

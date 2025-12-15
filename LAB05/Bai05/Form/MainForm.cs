@@ -14,12 +14,22 @@ namespace Bai05
     public partial class MainForm : Form
     {
         private int _pageSize = 6;
-        private int _currentPage = 1;
-        private int _totalPages = 1;
+
+        private int _pageAll = 1;
+        private int _totalPagesAll = 1;
+
+        private int _pageMy = 1;
+        private int _totalPagesMy = 1;
+
         private bool _isUpdatingPageCombo = false;
+
+        // cache phục vụ Random
         private List<FoodItem>? _cacheAllFoods = null;
+        private List<FoodItem>? _cacheMyFoods = null;
 
         private readonly FoodService _foodService;
+
+        private bool IsMineTab => tabMode != null && tabMode.SelectedTab == tabMine;
 
         public MainForm()
         {
@@ -32,84 +42,136 @@ namespace Bai05
             cboPageSize.Items.AddRange(new object[] { 6, 12, 18, 24 });
             cboPageSize.SelectedItem = 6;
 
-            await LoadAllFoodsAsync();
+            await ReloadCurrentTabAsync();
         }
 
-        private async Task LoadAllFoodsAsync()
+        private void ClearAndDispose(FlowLayoutPanel panel)
+        {
+            foreach (Control c in panel.Controls) c.Dispose();
+            panel.Controls.Clear();
+        }
+
+        private Label MakeEmptyLabel(string? text = null)
+        {
+            return new Label
+            {
+                Text = text ?? "Chưa có món ăn nào.",
+                TextAlign = ContentAlignment.MiddleCenter,
+                AutoSize = false,
+                Dock = DockStyle.Top,
+                Height = 120,
+                Font = new Font("Segoe UI", 14, FontStyle.Italic),
+                ForeColor = Color.Gray
+            };
+        }
+
+        private async Task LoadCommunityAsync()
         {
             toolStripProgressBar.Style = ProgressBarStyle.Marquee;
-            tsslStatus.Text = "Đang tải món ăn...";
+            tsslStatus.Text = "Đang tải cộng đồng...";
 
-            var result = await _foodService.GetAllFoodsAsync(_currentPage, _pageSize);
+            var result = await _foodService.GetAllFoodsAsync(_pageAll, _pageSize);
 
             toolStripProgressBar.Style = ProgressBarStyle.Blocks;
 
             if (!result.Success || result.Data == null)
             {
-                MessageBox.Show(
-                    result.ErrorMessage ?? "Không tải được dữ liệu món ăn",
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show(result.ErrorMessage ?? "Không tải được dữ liệu cộng đồng",
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 tsslStatus.Text = "Sẵn sàng";
                 return;
             }
 
-            var data = result.Data;
-            var pagination = data.pagination;
+            var d = result.Data;
+            var pg = d.pagination;
 
-            if (pagination != null)
+            _totalPagesAll = (pg != null && pg.pageSize > 0)
+                ? (int)Math.Ceiling(pg.total / (double)pg.pageSize)
+                : 1;
+
+            UpdatePageCombo();
+
+            ClearAndDispose(flpFoods);
+            var items = d.data ?? new List<FoodItem>();
+            if (items.Count == 0)
             {
-                var size = pagination.pageSize > 0 ? pagination.pageSize : _pageSize;
-                _totalPages = size > 0 ? (int)Math.Ceiling(pagination.total / (double)size) : 1;
-                tsslStatus.Text = $"Tổng: {pagination.total} món | Trang {_currentPage}/{_totalPages}";
+                flpFoods.Controls.Add(MakeEmptyLabel());
             }
             else
             {
-                _totalPages = 1;
-                tsslStatus.Text = "Sẵn sàng";
+                foreach (var food in items)
+                {
+                    var card = new FoodItemControl();
+                    card.SetData(food);
+                    card.ShowDeleteButton = false; // cộng đồng không xóa
+                    flpFoods.Controls.Add(card);
+                }
             }
 
-            UpdatePageCombo();
-            RenderFoodCards(data.data ?? new List<FoodItem>());
+            if (pg != null)
+                tsslStatus.Text = $"Cộng đồng: {pg.total} món | Trang {_pageAll}/{_totalPagesAll}";
+            else
+                tsslStatus.Text = "Sẵn sàng";
         }
 
-        private void RenderFoodCards(List<FoodItem> items)
+        private async Task LoadMineAsync()
         {
-            foreach (Control c in flpFoods.Controls)
-                c.Dispose();
-
-            flpFoods.Controls.Clear();
-
-            if (items.Count == 0)
+            // tab cá nhân bắt buộc có token
+            if (string.IsNullOrWhiteSpace(CurrentUser.User?.token))
             {
-                var lblEmpty = new Label
-                {
-                    Text = "Chưa có món ăn nào.\nHãy thêm món mới hoặc tải từ email!",
-                    TextAlign = ContentAlignment.MiddleCenter,
-                    AutoSize = false,
-                    Width = flpFoods.Width - 20,
-                    Height = 200,
-                    Font = new Font("Segoe UI", 14, FontStyle.Italic),
-                    ForeColor = Color.Gray
-                };
-                flpFoods.Controls.Add(lblEmpty);
+                MessageBox.Show("Bạn cần đăng nhập lại (thiếu token).", "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            foreach (var food in items)
-            {
-                var card = new FoodItemControl();
-                card.SetData(food);
+            toolStripProgressBar.Style = ProgressBarStyle.Marquee;
+            tsslStatus.Text = "Đang tải cá nhân...";
 
-                if (food.nguoi_dong_gop == CurrentUser.User?.email)
+            var result = await _foodService.GetMyFoodsAsync(_pageMy, _pageSize);
+
+            toolStripProgressBar.Style = ProgressBarStyle.Blocks;
+
+            if (!result.Success || result.Data == null)
+            {
+                MessageBox.Show(result.ErrorMessage ?? "Không tải được dữ liệu cá nhân",
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                tsslStatus.Text = "Sẵn sàng";
+                return;
+            }
+
+            var d = result.Data;
+            var pg = d.pagination;
+
+            _totalPagesMy = (pg != null && pg.pageSize > 0)
+                ? (int)Math.Ceiling(pg.total / (double)pg.pageSize)
+                : 1;
+
+            UpdatePageCombo();
+
+            ClearAndDispose(flpFoods);
+            var items = d.data ?? new List<FoodItem>();
+            if (items.Count == 0)
+            {
+                flpFoods.Controls.Add(MakeEmptyLabel("Bạn chưa có món nào.\nHãy thêm món hoặc tải từ Email!"));
+            }
+            else
+            {
+                foreach (var food in items)
                 {
+                    var card = new FoodItemControl();
+                    card.SetData(food);
+
                     card.ShowDeleteButton = true;
                     card.OnDeleteClick += Card_OnDeleteClick;
-                }
 
-                flpFoods.Controls.Add(card);
+                    flpFoods.Controls.Add(card);
+                }
             }
+
+            if (pg != null)
+                tsslStatus.Text = $"Cá nhân: {pg.total} món | Trang {_pageMy}/{_totalPagesMy}";
+            else
+                tsslStatus.Text = "Sẵn sàng";
         }
 
         private void UpdatePageCombo()
@@ -119,27 +181,18 @@ namespace Bai05
             {
                 cboPage.Items.Clear();
 
-                if (_totalPages <= 0)
-                {
-                    cboPage.Enabled = false;
-                    cboPage.Text = "0";
-                    btnPrevPage.Enabled = false;
-                    btnNextPage.Enabled = false;
-                    return;
-                }
+                int totalPages = IsMineTab ? _totalPagesMy : _totalPagesAll;
+                int currentPage = IsMineTab ? _pageMy : _pageAll;
 
-                cboPage.Enabled = true;
+                if (totalPages <= 0) totalPages = 1;
 
-                for (int i = 1; i <= _totalPages; i++)
+                for (int i = 1; i <= totalPages; i++)
                     cboPage.Items.Add(i);
 
-                if (_currentPage >= 1 && _currentPage <= _totalPages)
-                    cboPage.SelectedItem = _currentPage;
-                else
-                    cboPage.SelectedIndex = 0;
+                cboPage.SelectedItem = Math.Min(Math.Max(1, currentPage), totalPages);
 
-                btnPrevPage.Enabled = _currentPage > 1;
-                btnNextPage.Enabled = _currentPage < _totalPages;
+                btnPrevPage.Enabled = currentPage > 1;
+                btnNextPage.Enabled = currentPage < totalPages;
             }
             finally
             {
@@ -147,13 +200,28 @@ namespace Bai05
             }
         }
 
+        private async Task ReloadCurrentTabAsync()
+        {
+            if (IsMineTab) await LoadMineAsync();
+            else await LoadCommunityAsync();
+        }
+
+        private async void tabMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            await ReloadCurrentTabAsync();
+        }
+
         private async void cboPage_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (_isUpdatingPageCombo) return;
             if (cboPage.SelectedItem == null) return;
 
-            _currentPage = (int)cboPage.SelectedItem;
-            await LoadAllFoodsAsync();
+            int newPage = (int)cboPage.SelectedItem;
+
+            if (IsMineTab) _pageMy = newPage;
+            else _pageAll = newPage;
+
+            await ReloadCurrentTabAsync();
         }
 
         private async void cboPageSize_SelectedIndexChanged(object sender, EventArgs e)
@@ -161,26 +229,38 @@ namespace Bai05
             if (cboPageSize.SelectedItem == null) return;
 
             _pageSize = (int)cboPageSize.SelectedItem;
-            _currentPage = 1;
-            await LoadAllFoodsAsync();
+            _pageAll = 1;
+            _pageMy = 1;
+
+            await ReloadCurrentTabAsync();
         }
 
         private async void btnPrevPage_Click(object sender, EventArgs e)
         {
-            if (_currentPage > 1)
+            if (IsMineTab)
             {
-                _currentPage--;
-                await LoadAllFoodsAsync();
+                if (_pageMy > 1) _pageMy--;
             }
+            else
+            {
+                if (_pageAll > 1) _pageAll--;
+            }
+
+            await ReloadCurrentTabAsync();
         }
 
         private async void btnNextPage_Click(object sender, EventArgs e)
         {
-            if (_currentPage < _totalPages)
+            if (IsMineTab)
             {
-                _currentPage++;
-                await LoadAllFoodsAsync();
+                if (_pageMy < _totalPagesMy) _pageMy++;
             }
+            else
+            {
+                if (_pageAll < _totalPagesAll) _pageAll++;
+            }
+
+            await ReloadCurrentTabAsync();
         }
 
         private async void btnAdd_Click(object sender, EventArgs e)
@@ -189,9 +269,14 @@ namespace Bai05
             {
                 if (frm.ShowDialog(this) == DialogResult.OK)
                 {
-                    _currentPage = 1;
                     _cacheAllFoods = null;
-                    await LoadAllFoodsAsync();                }
+                    _cacheMyFoods = null;
+
+                    _pageAll = 1;
+                    _pageMy = 1;
+
+                    await ReloadCurrentTabAsync();
+                }
             }
         }
 
@@ -199,54 +284,61 @@ namespace Bai05
         {
             using (var frm = new EmailContributionForm())
             {
-                var result = frm.ShowDialog(this);
-
-                if (result == DialogResult.OK)
+                if (frm.ShowDialog(this) == DialogResult.OK)
                 {
-                    _currentPage = 1;
                     _cacheAllFoods = null;
-                    await LoadAllFoodsAsync();
+                    _cacheMyFoods = null;
+
+                    _pageAll = 1;
+                    _pageMy = 1;
+
+                    await ReloadCurrentTabAsync();
                 }
             }
         }
 
+        // ✅ FIX lỗi designer đang gọi btnRandom_Click
         private async void btnRandom_Click(object sender, EventArgs e)
         {
-            if (_cacheAllFoods == null)
+            List<FoodItem> list;
+
+            if (!IsMineTab)
             {
-                tsslStatus.Text = "Đang tải tất cả món ăn...";
-                toolStripProgressBar.Style = ProgressBarStyle.Marquee;
-
-                var res = await _foodService.GetAllFoodsAsync(1, 200);
-
-                toolStripProgressBar.Style = ProgressBarStyle.Blocks;
-
-                if (!res.Success || res.Data == null || res.Data.data.Count == 0)
+                if (_cacheAllFoods == null)
                 {
-                    MessageBox.Show(
-                        "Không có món ăn nào để chọn!\nHãy thêm món mới hoặc tải từ email.",
-                        "Thông báo",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-                    tsslStatus.Text = "Sẵn sàng";
+                    var res = await _foodService.GetAllFoodsNoPagingAsync();
+                    if (!res.Success || res.Data == null || res.Data.Count == 0)
+                    {
+                        MessageBox.Show("Không có món nào để chọn!");
+                        return;
+                    }
+                    _cacheAllFoods = res.Data;
+                }
+                list = _cacheAllFoods;
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(CurrentUser.User?.token))
+                {
+                    MessageBox.Show("Bạn cần đăng nhập lại (thiếu token).");
                     return;
                 }
 
-                _cacheAllFoods = res.Data.data;
-            }
-
-            if (_cacheAllFoods.Count == 0)
-            {
-                MessageBox.Show(
-                    "Không có món ăn nào để chọn!",
-                    "Thông báo",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-                return;
+                if (_cacheMyFoods == null)
+                {
+                    var res = await _foodService.GetMyFoodsNoPagingAsync();
+                    if (!res.Success || res.Data == null || res.Data.Count == 0)
+                    {
+                        MessageBox.Show("Bạn chưa có món nào để chọn!");
+                        return;
+                    }
+                    _cacheMyFoods = res.Data;
+                }
+                list = _cacheMyFoods;
             }
 
             var rnd = new Random();
-            var chosen = _cacheAllFoods[rnd.Next(_cacheAllFoods.Count)];
+            var chosen = list[rnd.Next(list.Count)];
 
             using (var frm = new RandomFoodForm(chosen))
             {
@@ -257,17 +349,13 @@ namespace Bai05
 
         private async void Card_OnDeleteClick(object sender, int foodId)
         {
-            var confirm = MessageBox.Show(
-                "Bạn có chắc muốn xóa món này?",
-                "Xác nhận xóa",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
+            var confirm = MessageBox.Show("Bạn có chắc muốn xóa món này?",
+                "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
-            if (confirm != DialogResult.Yes)
-                return;
+            if (confirm != DialogResult.Yes) return;
 
-            tsslStatus.Text = "Đang xóa...";
             toolStripProgressBar.Style = ProgressBarStyle.Marquee;
+            tsslStatus.Text = "Đang xóa...";
 
             var result = await _foodService.DeleteFoodAsync(foodId);
 
@@ -275,42 +363,34 @@ namespace Bai05
 
             if (!result.Success)
             {
-                MessageBox.Show(
-                    $"Xóa thất bại: {result.ErrorMessage}",
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show($"Xóa thất bại: {result.ErrorMessage}",
+                    "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 tsslStatus.Text = "Sẵn sàng";
                 return;
             }
 
             _cacheAllFoods = null;
-            await LoadAllFoodsAsync();
+            _cacheMyFoods = null;
 
-            MessageBox.Show("Đã xóa món thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void tsslLogout_Click(object sender, EventArgs e)
-        {
-            var confirm = MessageBox.Show(
-                "Bạn có chắc muốn đăng xuất?",
-                "Xác nhận",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (confirm != DialogResult.Yes)
-                return;
-
-            CurrentUser.ClearUser();
-            this.Hide();
-            new LoginForm().Show();
-            this.Close();
+            await ReloadCurrentTabAsync();
+            MessageBox.Show("Đã xóa món thành công!", "Thành công",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private async void btnRefresh_Click(object sender, EventArgs e)
         {
             _cacheAllFoods = null;
-            await LoadAllFoodsAsync();
+            _cacheMyFoods = null;
+
+            await ReloadCurrentTabAsync();
+        }
+
+        private void tsslLogout_Click(object sender, EventArgs e)
+        {
+            CurrentUser.ClearUser();
+            this.Hide();
+            new LoginForm().Show();
+            this.Close();
         }
     }
 }

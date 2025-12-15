@@ -108,6 +108,7 @@
             txtPsswrd.Name = "txtPsswrd";
             txtPsswrd.Size = new Size(189, 26);
             txtPsswrd.TabIndex = 5;
+            txtPsswrd.UseSystemPasswordChar = true;
             // 
             // lblUsername
             // 
@@ -368,6 +369,7 @@
             ClientSize = new Size(398, 622);
             Controls.Add(splitContainer1);
             Name = "RegisterForm";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Đăng ký";
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);

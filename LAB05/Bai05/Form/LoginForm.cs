@@ -17,9 +17,7 @@ namespace Bai05
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 MessageBox.Show("Vui lòng nhập tên người dùng và mật khẩu!",
-                    "Đăng nhập thất bại",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                    "Đăng nhập thất bại", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -29,13 +27,10 @@ namespace Bai05
             Cursor = Cursors.WaitCursor;
 
             var login = await Program.authSer.LoginAsync(username, password);
-
-            if (!login.Success)
+            if (!login.Success || login.Data == null)
             {
                 MessageBox.Show("Sai tên người dùng hoặc mật khẩu!",
-                    "Đăng nhập thất bại",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
+                    "Đăng nhập thất bại", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
                 btnLogin.Enabled = true;
                 btnCancel.Enabled = true;
@@ -44,12 +39,15 @@ namespace Bai05
                 return;
             }
 
-            var me = await Program.authSer.GetMeAsync();
+            var token = CurrentUser.User?.token;
 
+            var me = await Program.authSer.GetMeAsync();
             if (me.Success && me.Data != null)
             {
+                me.Data.token = token;          
                 CurrentUser.SetUser(me.Data);
             }
+
             var main = new MainForm();
             main.Show();
             this.Hide();

@@ -31,17 +31,26 @@ namespace Bai05
         /// </summary>
         private void InitializeComponent()
         {
+            foodItemControl1 = new FoodItemControl();
             SuspendLayout();
+            // 
+            // foodItemControl1
+            // 
+            foodItemControl1.Location = new Point(0, 0);
+            foodItemControl1.Name = "foodItemControl1";
+            foodItemControl1.ShowDeleteButton = false;
+            foodItemControl1.Size = new Size(600, 155);
+            foodItemControl1.TabIndex = 0;
             // 
             // RandomFoodForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(602, 158);
-            foodItemControl1 = new Bai05.User_Controls.FoodItemControl();
             Controls.Add(foodItemControl1);
             Name = "RandomFoodForm";
             ShowIcon = false;
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "RandomFoodForm";
             Load += RandomFoodForm_Load;
             ResumeLayout(false);

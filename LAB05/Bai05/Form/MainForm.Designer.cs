@@ -25,6 +25,9 @@
             lblTitle = new Label();
             pnlMain = new Panel();
             flpFoods = new FlowLayoutPanel();
+            tabMode = new TabControl();
+            tabCommunity = new TabPage();
+            tabMine = new TabPage();
             pnlBottom = new Panel();
             btnNextPage = new Button();
             btnPrevPage = new Button();
@@ -35,11 +38,10 @@
             statusStrip = new StatusStrip();
             toolStripProgressBar = new ToolStripProgressBar();
             tsslStatus = new ToolStripStatusLabel();
-            tsslWelcome = new ToolStripStatusLabel();
             tsslLogout = new ToolStripStatusLabel();
-            toolStripStatusLabel1 = new ToolStripStatusLabel();
             pnlTop.SuspendLayout();
             pnlMain.SuspendLayout();
+            tabMode.SuspendLayout();
             pnlBottom.SuspendLayout();
             statusStrip.SuspendLayout();
             SuspendLayout();
@@ -138,6 +140,7 @@
             // pnlMain
             // 
             pnlMain.Controls.Add(flpFoods);
+            pnlMain.Controls.Add(tabMode);
             pnlMain.Dock = DockStyle.Fill;
             pnlMain.Font = new Font("Tahoma", 7.8F);
             pnlMain.Location = new Point(0, 107);
@@ -154,12 +157,45 @@
             flpFoods.BorderStyle = BorderStyle.Fixed3D;
             flpFoods.Dock = DockStyle.Fill;
             flpFoods.Font = new Font("Tahoma", 7.8F);
-            flpFoods.Location = new Point(11, 13);
             flpFoods.Margin = new Padding(3, 4, 3, 4);
             flpFoods.Name = "flpFoods";
             flpFoods.Padding = new Padding(6, 7, 6, 7);
-            flpFoods.Size = new Size(1121, 631);
+            flpFoods.Size = new Size(1121, 506);
             flpFoods.TabIndex = 0;
+            // 
+            // tabMode
+            // 
+            tabMode.Controls.Add(tabCommunity);
+            tabMode.Controls.Add(tabMine);
+            tabMode.Dock = DockStyle.Top;
+            tabMode.Location = new Point(11, 13);
+            tabMode.Name = "tabMode";
+            tabMode.SelectedIndex = 0;
+            tabMode.Height = 36; 
+            tabMode.SizeMode = TabSizeMode.Fixed;
+            tabMode.ItemSize = new Size(120, 28);
+            tabMode.TabIndex = 0;
+            tabMode.SelectedIndexChanged += tabMode_SelectedIndexChanged;
+            // 
+            // tabCommunity
+            // 
+            tabCommunity.Location = new Point(4, 25);
+            tabCommunity.Name = "tabCommunity";
+            tabCommunity.Padding = new Padding(3);
+            tabCommunity.Size = new Size(1113, 96);
+            tabCommunity.TabIndex = 0;
+            tabCommunity.Text = "Cộng đồng";
+            tabCommunity.UseVisualStyleBackColor = true;
+            // 
+            // tabMine
+            // 
+            tabMine.Location = new Point(4, 25);
+            tabMine.Name = "tabMine";
+            tabMine.Padding = new Padding(3);
+            tabMine.Size = new Size(1113, 96);
+            tabMine.TabIndex = 1;
+            tabMine.Text = "Cá nhân";
+            tabMine.UseVisualStyleBackColor = true;
             // 
             // pnlBottom
             // 
@@ -257,7 +293,7 @@
             // 
             statusStrip.Font = new Font("Tahoma", 7.8F);
             statusStrip.ImageScalingSize = new Size(20, 20);
-            statusStrip.Items.AddRange(new ToolStripItem[] { toolStripProgressBar, tsslStatus, tsslWelcome, tsslLogout, toolStripStatusLabel1 });
+            statusStrip.Items.AddRange(new ToolStripItem[] { toolStripProgressBar, tsslStatus, tsslLogout });
             statusStrip.Location = new Point(0, 830);
             statusStrip.Name = "statusStrip";
             statusStrip.Padding = new Padding(1, 0, 16, 0);
@@ -277,15 +313,6 @@
             tsslStatus.Size = new Size(60, 23);
             tsslStatus.Text = "Sẵn sàng";
             // 
-            // tsslWelcome
-            // 
-            tsslWelcome.Font = new Font("Tahoma", 7.8F);
-            tsslWelcome.Name = "tsslWelcome";
-            tsslWelcome.Size = new Size(885, 23);
-            tsslWelcome.Spring = true;
-            tsslWelcome.Text = "Xin chào!";
-            tsslWelcome.TextAlign = ContentAlignment.MiddleRight;
-            // 
             // tsslLogout
             // 
             tsslLogout.ActiveLinkColor = SystemColors.ControlText;
@@ -298,12 +325,6 @@
             tsslLogout.Text = "Đăng xuất";
             tsslLogout.VisitedLinkColor = SystemColors.ControlText;
             tsslLogout.Click += tsslLogout_Click;
-            // 
-            // toolStripStatusLabel1
-            // 
-            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(128, 23);
-            toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // MainForm
             // 
@@ -323,6 +344,7 @@
             pnlTop.ResumeLayout(false);
             pnlTop.PerformLayout();
             pnlMain.ResumeLayout(false);
+            tabMode.ResumeLayout(false);
             pnlBottom.ResumeLayout(false);
             pnlBottom.PerformLayout();
             statusStrip.ResumeLayout(false);
@@ -349,11 +371,12 @@
         private System.Windows.Forms.StatusStrip statusStrip;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar;
         private System.Windows.Forms.ToolStripStatusLabel tsslStatus;
-        private System.Windows.Forms.ToolStripStatusLabel tsslWelcome;
         private System.Windows.Forms.ToolStripStatusLabel tsslLogout;
         private System.Windows.Forms.Button btnNextPage;
         private System.Windows.Forms.Button btnPrevPage;
         private System.Windows.Forms.Button btnRefresh;
-        private ToolStripStatusLabel toolStripStatusLabel1;
+        private TabControl tabMode;
+        private TabPage tabCommunity;
+        private TabPage tabMine;
     }
 }

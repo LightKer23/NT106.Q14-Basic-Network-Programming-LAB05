@@ -136,6 +136,7 @@
             txtAppPassword.Name = "txtAppPassword";
             txtAppPassword.Size = new Size(202, 28);
             txtAppPassword.TabIndex = 2;
+            txtAppPassword.UseSystemPasswordChar = true;
             // 
             // label1
             // 
@@ -212,15 +213,13 @@
             // 
             toolStripStatusLabel1.Font = new Font("Tahoma", 10.2F);
             toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(167, 21);
-            toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            toolStripStatusLabel1.Size = new Size(0, 21);
             // 
             // toolStripStatusLabel2
             // 
             toolStripStatusLabel2.Font = new Font("Tahoma", 10.2F);
             toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            toolStripStatusLabel2.Size = new Size(167, 21);
-            toolStripStatusLabel2.Text = "toolStripStatusLabel2";
+            toolStripStatusLabel2.Size = new Size(0, 21);
             // 
             // EmailContributionForm
             // 

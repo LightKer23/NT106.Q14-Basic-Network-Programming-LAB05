@@ -1,5 +1,4 @@
-﻿using Bai05.Models;
-using Bai05.Services;
+﻿using Bai05.Services;
 using Bai05.Utils;
 using MailKit;
 using MailKit.Net.Imap;
@@ -9,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -34,8 +32,7 @@ namespace Bai05
             string imapServer = "imap.gmail.com";
             int imapPort = 993;
             string email = txtGmail.Text.Trim();
-            string password = txtAppPassword.Text.Trim().Replace(" ", ""); 
-
+            string password = txtAppPassword.Text.Trim().Replace(" ", "");
 
             if (string.IsNullOrEmpty(email))
             {
@@ -69,6 +66,7 @@ namespace Bai05
                         "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
+
                 lstResults.Items.Clear();
                 int totalSuccess = results.Count(r => r.Success);
                 int totalFailed = results.Count(r => !r.Success);
@@ -90,32 +88,30 @@ namespace Bai05
 
                 this.DialogResult = DialogResult.OK;
             }
-            catch (MailKit.Security.AuthenticationException ex)
+            catch (AuthenticationException ex)
             {
                 progressBar1.Style = ProgressBarStyle.Blocks;
                 lblStatus.Text = "Lỗi xác thực Gmail";
 
                 MessageBox.Show(
                     "Gmail từ chối đăng nhập.\n\n" +
-                    "Chi tiết server trả về:\n" + ex.Message + "\n\n" +
-                    "=> Dựa vào dòng này mới biết đúng nguyên nhân (sai app password / bật 2FA chưa / admin chặn /...).",
+                    "Chi tiết server trả về:\n" + ex.Message,
                     "Lỗi xác thực",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
-            catch (MailKit.CommandException ex) 
+            catch (MailKit.CommandException ex)
             {
                 progressBar1.Style = ProgressBarStyle.Blocks;
-                lblStatus.Text = "Lỗi xác thực Gmail";
+                lblStatus.Text = "Lỗi IMAP";
 
                 MessageBox.Show(
                     "IMAP command bị từ chối.\n\n" +
                     "Chi tiết:\n" + ex.Message,
-                    "Lỗi xác thực",
+                    "Lỗi IMAP",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
-
             catch (Exception ex)
             {
                 progressBar1.Style = ProgressBarStyle.Blocks;
@@ -130,13 +126,13 @@ namespace Bai05
         }
 
         private async Task<List<EmailProcessResult>> LoadEmailContributionsAsync(
-    string server, int port, string email, string password)
+            string server, int port, string email, string password)
         {
             var results = new List<EmailProcessResult>();
 
             using (var client = new ImapClient(new ProtocolLogger("imap.log")))
             {
-                await client.ConnectAsync(server, port, MailKit.Security.SecureSocketOptions.SslOnConnect);
+                await client.ConnectAsync(server, port, SecureSocketOptions.SslOnConnect);
                 client.AuthenticationMechanisms.Remove("XOAUTH2");
                 await client.AuthenticateAsync(email, password);
 
@@ -148,10 +144,9 @@ namespace Bai05
 
                 var query = SearchQuery.DeliveredAfter(DateTime.Now.AddDays(-7))
                     .And(SearchQuery.SubjectContains("Đóng góp"))
-                    .Or(
-                        SearchQuery.DeliveredAfter(DateTime.Now.AddDays(-7))
-                        .And(SearchQuery.SubjectContains("Dong gop"))
-                     );
+                    .Or(SearchQuery.DeliveredAfter(DateTime.Now.AddDays(-7))
+                        .And(SearchQuery.SubjectContains("Dong gop")));
+
                 var uids = await inbox.SearchAsync(query);
 
                 lblStatus.Text = $"Tìm thấy {uids.Count} email đóng góp. Đang xử lý...";
@@ -167,10 +162,10 @@ namespace Bai05
                     try
                     {
                         var message = await inbox.GetMessageAsync(uid);
-                        if (!IsValidTitle(message.Subject ?? ""))
-                        {
+
+                        var subject = message.Subject ?? "";
+                        if (!IsValidTitle(subject))
                             continue;
-                        }
 
                         var result = await ProcessEmailAsync(message);
                         results.Add(result);
@@ -196,7 +191,6 @@ namespace Bai05
         private bool IsValidTitle(string title)
         {
             if (string.IsNullOrWhiteSpace(title)) return false;
-
             string normalized = NormalizeVN(title);
             return normalized.Contains("dong gop mon an");
         }
@@ -226,6 +220,7 @@ namespace Bai05
             var stripped = Regex.Replace(html, "<.*?>", "");
             return WebUtility.HtmlDecode(stripped);
         }
+
         private async Task<EmailProcessResult> ProcessEmailAsync(MimeKit.MimeMessage message)
         {
             try
@@ -252,6 +247,7 @@ namespace Bai05
                     {
                         Success = false,
                         SenderEmail = senderAddress,
+                        SenderName = senderName,
                         Message = "Không tìm thấy món ăn hợp lệ trong email"
                     };
                 }
@@ -260,48 +256,33 @@ namespace Bai05
                 Application.DoEvents();
 
                 int successCount = 0;
-                var errors = new List<string>(); 
+                var errors = new List<string>();
 
                 foreach (var food in foods)
                 {
                     if (string.IsNullOrWhiteSpace(food.Name))
-                    {
-                        System.Diagnostics.Debug.WriteLine("Bỏ qua: Tên món rỗng");
                         continue;
-                    }
 
-                    if (string.IsNullOrWhiteSpace(food.ImageUrl) || food.ImageUrl.Length > 500)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Bỏ qua [{food.Name}]: URL không hợp lệ hoặc quá dài");
+                    if (string.IsNullOrWhiteSpace(food.ImageUrl) || food.ImageUrl.Length > 2000)
                         continue;
-                    }
 
                     var addResult = await _foodService.AddFoodAsync(
                         food.Name,
                         food.Price,
-                        food.Description ?? "Món ăn ngon",  
+                        "Món ăn ngon",  
                         food.ImageUrl,
-                        food.Address ?? "TP.HCM"           
+                        food.Address
                     );
 
                     if (addResult.Success)
-                    {
                         successCount++;
-                    }
                     else
-                    {
-                        var err = $"[{food.Name}] {addResult.ErrorMessage}";
-                        errors.Add(err); 
-                        System.Diagnostics.Debug.WriteLine(err);
-                    }
+                        errors.Add($"[{food.Name}] {addResult.ErrorMessage}");
                 }
 
                 string resultMsg = $"Đã thêm {successCount}/{foods.Count} món";
-
                 if (errors.Count > 0)
-                {
                     resultMsg += $"\n\nLỗi ({errors.Count} món):\n" + string.Join("\n", errors);
-                }
 
                 return new EmailProcessResult
                 {
@@ -322,59 +303,111 @@ namespace Bai05
                 };
             }
         }
-
         private List<FoodContribution> ParseFoodsFromBody(string body)
         {
             var foods = new List<FoodContribution>();
-            var lines = body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            var lines = body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Replace('\u00A0', ' ').Trim())
+                            .Where(x => !string.IsNullOrWhiteSpace(x))
+                            .ToList();
+
+            // 1) Gom lines thành các record (mỗi record bắt đầu bằng "Tên;...")
+            var records = new List<string>();
+            var cur = "";
+
+            bool LooksLikeNewRecord(string s)
+            {
+                int semi = s.IndexOf(';');
+                if (semi <= 0) return false;
+
+                var first = s.Substring(0, semi).Trim();
+
+                // tên món thường không phải URL
+                if (first.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return false;
+                if (first.Contains("://")) return false;
+                if (first.StartsWith("www.", StringComparison.OrdinalIgnoreCase)) return false;
+
+                return true;
+            }
 
             foreach (var line in lines)
             {
-                var trimmed = line.Replace('\u00A0', ' ').Trim();
-                if (string.IsNullOrEmpty(trimmed))
-                    continue;
-
-                var parts = trimmed.Split(';');
-
-                if (parts.Length < 2)
-                    continue;
-
-                var food = new FoodContribution
+                if (LooksLikeNewRecord(line))
                 {
-                    Name = parts[0].Trim(),
-                    ImageUrl = NormalizeImageUrl(parts[1].Trim()),
+                    if (!string.IsNullOrWhiteSpace(cur))
+                        records.Add(cur);
 
-                    Description = "Món ăn ngon", 
-                    Address = "TP. Hồ Chí Minh", 
-                    Price = 0
-                };
-
-                if (parts.Length >= 3 && int.TryParse(parts[2].Trim(), out int price))
-                    food.Price = price;
-
-                if (parts.Length >= 4 && !string.IsNullOrWhiteSpace(parts[3]))
-                    food.Address = parts[3].Trim();
-
-                if (parts.Length >= 5 && !string.IsNullOrWhiteSpace(parts[4]))
-                    food.Description = parts[4].Trim();
-
-                if (string.IsNullOrWhiteSpace(food.ImageUrl) ||
-                    (!food.ImageUrl.StartsWith("http://") && !food.ImageUrl.StartsWith("https://")))
-                {
-                    System.Diagnostics.Debug.WriteLine($"Bỏ qua món [{food.Name}]: URL không hợp lệ");
-                    continue;
+                    cur = line;
                 }
+                else
+                {
+                    // line là phần tiếp của URL / phần tiếp record => nối thẳng (không thêm newline)
+                    cur += line;
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(cur))
+                records.Add(cur);
 
-                foods.Add(food);
+            // 2) Parse từng record: Ten;Url;Gia;DiaChi
+            foreach (var rec in records)
+            {
+                var parts = rec.Split(';');
+
+                if (parts.Length < 2) continue;
+
+                string name = parts[0].Trim();
+                string url = (parts.Length >= 2) ? parts[1].Trim() : "";
+                int price = 0;
+                string address = "TP. Hồ Chí Minh";
+
+                if (parts.Length >= 3) price = ParsePrice(parts[2]);
+                if (parts.Length >= 4 && !string.IsNullOrWhiteSpace(parts[3])) address = parts[3].Trim();
+
+                url = NormalizeImageUrl(url);
+
+                if (string.IsNullOrWhiteSpace(name)) continue;
+                if (string.IsNullOrWhiteSpace(url)) continue;
+                if (!url.StartsWith("http://") && !url.StartsWith("https://")) continue;
+
+                foods.Add(new FoodContribution
+                {
+                    Name = name,
+                    ImageUrl = url,
+                    Price = price,
+                    Address = address
+                });
             }
 
             return foods;
         }
+
+        private int ParsePrice(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return 0;
+
+            var s = raw.Trim().ToLowerInvariant();
+            s = s.Replace("vnd", "").Replace("đ", "").Replace("d", "");
+            s = s.Replace(",", "").Replace(".", "");
+            s = Regex.Replace(s, @"\s+", "");
+
+            return int.TryParse(s, out int p) ? p : 0;
+        }
+
+
         private string NormalizeImageUrl(string url)
         {
             if (string.IsNullOrWhiteSpace(url)) return "";
 
             url = url.Trim().Trim('<', '>', '"');
+
+            if (url.Contains("/_next/image", StringComparison.OrdinalIgnoreCase))
+            {
+                var m = Regex.Match(url, @"[?&]url=([^&]+)", RegexOptions.IgnoreCase);
+                if (m.Success)
+                    url = WebUtility.UrlDecode(m.Groups[1].Value);
+            }
+
             if (url.Contains("bing.com/images/search", StringComparison.OrdinalIgnoreCase))
             {
                 var m = Regex.Match(url, @"[?&]mediaurl=([^&]+)", RegexOptions.IgnoreCase);
@@ -382,7 +415,7 @@ namespace Bai05
                     url = WebUtility.UrlDecode(m.Groups[1].Value);
             }
 
-            return url;
+            return url.Trim();
         }
 
         private string RemoveDiacritics(string text)
@@ -407,14 +440,12 @@ namespace Bai05
             catch { }
         }
     }
-
     public class FoodContribution
     {
         public string Name { get; set; } = "";
         public string ImageUrl { get; set; } = "";
         public int Price { get; set; } = 0;
         public string Address { get; set; } = "";
-        public string Description { get; set; } = "";
     }
 
     public class EmailProcessResult

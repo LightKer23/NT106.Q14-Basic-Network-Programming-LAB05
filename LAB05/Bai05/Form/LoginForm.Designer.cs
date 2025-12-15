@@ -73,6 +73,7 @@
             txtpassword.Name = "txtpassword";
             txtpassword.Size = new Size(189, 28);
             txtpassword.TabIndex = 3;
+            txtpassword.UseSystemPasswordChar = true;
             // 
             // lblusername
             // 
@@ -182,6 +183,7 @@
             ClientSize = new Size(398, 379);
             Controls.Add(splitContainer1);
             Name = "LoginForm";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Đăng nhập";
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);

@@ -79,12 +79,13 @@ namespace Bai05.User_Controls
             {
                 var bytes = await httpClient.GetByteArrayAsync(url);
                 using (var ms = new MemoryStream(bytes))
+                using (var tmp = Image.FromStream(ms))
                 {
-                    var img = Image.FromStream(ms);
-
+                    var img = (Image)tmp.Clone();     
                     DisposeCurrentImage();
                     pbImage.Image = img;
                 }
+
             }
             catch (Exception ex)
             {
