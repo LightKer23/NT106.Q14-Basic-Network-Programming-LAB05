@@ -306,24 +306,25 @@ namespace Bai05
         private List<FoodContribution> ParseFoodsFromBody(string body)
         {
             var foods = new List<FoodContribution>();
+            const string SEP_CLASS = @";；؛﹔;";
 
             var lines = body.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                             .Select(x => x.Replace('\u00A0', ' ').Trim())
                             .Where(x => !string.IsNullOrWhiteSpace(x))
                             .ToList();
 
-            // 1) Gom lines thành các record (mỗi record bắt đầu bằng "Tên;...")
             var records = new List<string>();
-            var cur = "";
+            string cur = "";
 
             bool LooksLikeNewRecord(string s)
             {
-                int semi = s.IndexOf(';');
+                int semi = s.IndexOfAny(SEP_CLASS.ToCharArray());
                 if (semi <= 0) return false;
 
                 var first = s.Substring(0, semi).Trim();
 
-                // tên món thường không phải URL
+                if (!first.Any(char.IsLetter)) return false;
+
                 if (first.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return false;
                 if (first.Contains("://")) return false;
                 if (first.StartsWith("www.", StringComparison.OrdinalIgnoreCase)) return false;
@@ -342,27 +343,42 @@ namespace Bai05
                 }
                 else
                 {
-                    cur += line;
+                    cur = string.IsNullOrWhiteSpace(cur) ? line : (cur + " " + line);
                 }
             }
+
             if (!string.IsNullOrWhiteSpace(cur))
                 records.Add(cur);
 
             foreach (var rec in records)
             {
-                var parts = rec.Split(';');
+                var parts = Regex
+                .Split(rec, @"\s*[;；؛﹔;]\s*")          
+                .Select(p => p.Trim())
+                .Where(p => !string.IsNullOrWhiteSpace(p)) 
+                .ToArray();
 
                 if (parts.Length < 2) continue;
 
-                string name = parts[0].Trim();
-                string url = (parts.Length >= 2) ? parts[1].Trim() : "";
+                string name = parts[0];
+                string url = NormalizeImageUrl(parts[1]);
+
                 int price = 0;
                 string address = "TP. Hồ Chí Minh";
 
-                if (parts.Length >= 3) price = ParsePrice(parts[2]);
-                if (parts.Length >= 4 && !string.IsNullOrWhiteSpace(parts[3])) address = parts[3].Trim();
+                if (parts.Length >= 3)
+                {
+                    if (Regex.IsMatch(parts[2], @"\d"))
+                        price = ParsePrice(parts[2]);
+                    else
+                        address = parts[2];
+                }
 
-                url = NormalizeImageUrl(url);
+                if (parts.Length >= 4)
+                {
+                    int start = Regex.IsMatch(parts[2], @"\d") ? 3 : 2;
+                    address = string.Join("; ", parts.Skip(start)).Trim();
+                }
 
                 if (string.IsNullOrWhiteSpace(name)) continue;
                 if (string.IsNullOrWhiteSpace(url)) continue;
@@ -375,23 +391,19 @@ namespace Bai05
                     Price = price,
                     Address = address
                 });
+
             }
 
             return foods;
         }
 
+
         private int ParsePrice(string raw)
         {
             if (string.IsNullOrWhiteSpace(raw)) return 0;
-
-            var s = raw.Trim().ToLowerInvariant();
-            s = s.Replace("vnd", "").Replace("đ", "").Replace("d", "");
-            s = s.Replace(",", "").Replace(".", "");
-            s = Regex.Replace(s, @"\s+", "");
-
-            return int.TryParse(s, out int p) ? p : 0;
+            string digits = Regex.Replace(raw, @"[^\d]", "");
+            return int.TryParse(digits, out int p) ? p : 0;
         }
-
 
         private string NormalizeImageUrl(string url)
         {
