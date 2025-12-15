@@ -113,6 +113,7 @@
             groupBox1.Size = new Size(356, 216);
             groupBox1.TabIndex = 64;
             groupBox1.TabStop = false;
+            groupBox1.UseCompatibleTextRendering = true;
             // 
             // C2
             // 

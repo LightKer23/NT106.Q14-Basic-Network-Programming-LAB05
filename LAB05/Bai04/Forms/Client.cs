@@ -31,6 +31,8 @@ namespace Bai04
             InitializeComponent();
 
             chooseFilm.Click += ChooseFilm_Click;
+            RoomComboBox.SelectedIndexChanged += RoomComboBox_SelectedIndexChanged;
+            BookButton.Click += BookButton_Click;
 
             seatButtons.Add(A1); seatButtons.Add(A2); seatButtons.Add(A3); seatButtons.Add(A4); seatButtons.Add(A5);
             seatButtons.Add(B1); seatButtons.Add(B2); seatButtons.Add(B3); seatButtons.Add(B4); seatButtons.Add(B5);
