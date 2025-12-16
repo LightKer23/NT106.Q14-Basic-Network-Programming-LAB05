@@ -9,6 +9,9 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 
 namespace Bai06.UI
 {
@@ -19,39 +22,52 @@ namespace Bai06.UI
         {
             InitializeComponent();
 
-            // Tự điền email đăng nhập
             txtFrom.Text = MainForm.Email;
         }
-
+        public SendMail(string to, string subject, string body) : this()
+        {
+            txtTo.Text = to;
+            txtSubject.Text = subject;
+            rtbContent.Text = body;
+        }
         private void btnSend_Click(object sender, EventArgs e)
         {
             try
             {
-                MailMessage mail = new MailMessage();
-                mail.From = new MailAddress(txtFrom.Text, txtName.Text);
-                mail.To.Add(txtTo.Text);
+                MimeMessage mail = new MimeMessage();
+                mail.From.Add(new MailboxAddress(txtName.Text, txtFrom.Text));
+                mail.To.Add(MailboxAddress.Parse(txtTo.Text));
                 mail.Subject = txtSubject.Text;
-                mail.Body = rtbContent.Text;
-                mail.IsBodyHtml = chkHTML.Checked;
 
-                // Đính kèm file
+                BodyBuilder builder = new BodyBuilder();
+
+                if (chkHTML.Checked)
+                    builder.HtmlBody = rtbContent.Text;
+                else
+                    builder.TextBody = rtbContent.Text;
+
                 if (!string.IsNullOrEmpty(txtBrowse.Text))
                 {
-                    Attachment att = new Attachment(txtBrowse.Text);
-                    mail.Attachments.Add(att);
+                    builder.Attachments.Add(txtBrowse.Text);
                 }
 
-                SmtpClient smtp = new SmtpClient(
-                    MainForm.SMTPHost,
-                    MainForm.SMTPPort
-                );
-                smtp.EnableSsl = true;
-                smtp.Credentials = new NetworkCredential(
-                    MainForm.Email,
-                    MainForm.Password
-                );
+                mail.Body = builder.ToMessageBody();
 
-                smtp.Send(mail);
+                MailKit.Net.Smtp.SmtpClient smtp = new MailKit.Net.Smtp.SmtpClient();
+                try
+                {
+                    smtp.Connect(MainForm.SMTPHost, MainForm.SMTPPort, SecureSocketOptions.SslOnConnect);
+                    smtp.AuthenticationMechanisms.Remove("XOAUTH2");
+                    smtp.Authenticate(MainForm.Email, MainForm.Password);
+
+                    smtp.Send(mail);
+                    smtp.Disconnect(true);
+                }
+                finally
+                {
+                    smtp.Dispose();
+                }
+
                 MessageBox.Show("Gửi mail thành công!");
             }
             catch (Exception ex)
@@ -59,6 +75,7 @@ namespace Bai06.UI
                 MessageBox.Show("Lỗi gửi mail!\n" + ex.Message);
             }
         }
+
 
         private void btnBrowse_Click(object sender, EventArgs e)
         {

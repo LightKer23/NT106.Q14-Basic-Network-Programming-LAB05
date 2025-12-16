@@ -228,12 +228,15 @@
             // lstEmail
             // 
             lstEmail.Columns.AddRange(new ColumnHeader[] { STT, clmTieuDe, clmDen, clmThoiGian });
+            lstEmail.FullRowSelect = true;
             lstEmail.Location = new Point(12, 153);
+            lstEmail.MultiSelect = false;
             lstEmail.Name = "lstEmail";
             lstEmail.Size = new Size(776, 318);
             lstEmail.TabIndex = 2;
             lstEmail.UseCompatibleStateImageBehavior = false;
             lstEmail.View = View.Details;
+            lstEmail.DoubleClick += lstEmail_DoubleClick;
             // 
             // STT
             // 
@@ -247,7 +250,7 @@
             // 
             // clmDen
             // 
-            clmDen.Text = "Đến";
+            clmDen.Text = "Từ";
             clmDen.Width = 380;
             // 
             // clmThoiGian

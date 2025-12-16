@@ -1,4 +1,8 @@
-﻿using System;
+﻿using MailKit;
+using MailKit.Net.Imap;
+using MailKit.Security;
+using MimeKit;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -9,9 +13,6 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MailKit.Net.Imap;
-using MailKit;
-using MimeKit;
 
 
 namespace Bai06.UI
@@ -22,17 +23,17 @@ namespace Bai06.UI
         public static string Password;
         public static string SMTPHost;
         public static int SMTPPort;
-
+        public static string IMAPHost; 
+        public static int IMAPPort = 993;
         public MainForm()
         {
             InitializeComponent();
 
-            // Gợi ý sẵn cho Gmail
             txtIMAP.Text = "imap.gmail.com";
             txtPortIMAP.Text = "993";
 
             txtSMTP.Text = "smtp.gmail.com";
-            txtPortSMTP.Text = "587";
+            txtPortSMTP.Text = "465";
 
 
             btnSendMail.Visible = false;
@@ -42,35 +43,38 @@ namespace Bai06.UI
         }
 
 
-
         private void LoadEmail()
         {
             lstEmail.Items.Clear();
-
 
             using (ImapClient client = new ImapClient())
             {
                 client.Connect(txtIMAP.Text, int.Parse(txtPortIMAP.Text), true);
                 client.Authenticate(txtUsername.Text, txtPassword.Text);
 
-                var inbox = client.Inbox;
+                IMailFolder inbox = client.Inbox;
                 inbox.Open(FolderAccess.ReadOnly);
 
                 int count = inbox.Count;
-                int stt = 1;
 
-                // Lấy 10 mail mới nhất
-                for (int i = count - 1; i >= Math.Max(0, count - 10); i--)
+                IList<IMessageSummary> summaries =
+                    inbox.Fetch(0, count - 1, MessageSummaryItems.Envelope | MessageSummaryItems.InternalDate);
+
+                int stt = 1;
+                for (int k = summaries.Count - 1; k >= 0; k--)
                 {
-                    MimeMessage message = inbox.GetMessage(i);
+                    IMessageSummary s = summaries[k];
+
+                    string subject = (s.Envelope != null && s.Envelope.Subject != null) ? s.Envelope.Subject : "";
+                    string from = (s.Envelope != null && s.Envelope.From != null) ? s.Envelope.From.ToString() : "";
+                    DateTime dt = (s.InternalDate.HasValue) ? s.InternalDate.Value.DateTime : DateTime.MinValue;
 
                     ListViewItem item = new ListViewItem(stt.ToString());
-                    item.SubItems.Add(message.Subject);
-                    item.SubItems.Add(message.From.ToString());
-                    item.SubItems.Add(message.Date.DateTime.ToString("dd/MM/yyyy HH:mm"));
+                    item.SubItems.Add(subject);
+                    item.SubItems.Add(from);
+                    item.SubItems.Add(dt.ToString("dd/MM/yyyy HH:mm"));
 
-                    // Lưu message index để đọc chi tiết sau này
-                    item.Tag = i;
+                    item.Tag = s.Index;
 
                     lstEmail.Items.Add(item);
                     stt++;
@@ -79,22 +83,19 @@ namespace Bai06.UI
                 client.Disconnect(true);
             }
         }
-
-
         private void btnLogin_Click(object sender, EventArgs e)
         {
             Email = txtUsername.Text.Trim();
             Password = txtPassword.Text.Trim();
             SMTPHost = txtSMTP.Text.Trim();
             SMTPPort = int.Parse(txtPortSMTP.Text);
+            IMAPHost = txtIMAP.Text.Trim();
+            IMAPPort = int.Parse(txtPortIMAP.Text);
+
 
             try
             {
-                SmtpClient smtp = new SmtpClient(SMTPHost, SMTPPort);
-                smtp.EnableSsl = true;
-                smtp.Credentials = new NetworkCredential(Email, Password);
-
-                smtp.Send(Email, Email, "Test Login", "Login Success");
+                LoadEmail();
 
                 MessageBox.Show("Đăng nhập thành công!");
 
@@ -108,7 +109,6 @@ namespace Bai06.UI
 
                 groupBox2.Enabled = false;
 
-                LoadEmail();
 
             }
             catch (Exception ex)
@@ -146,5 +146,31 @@ namespace Bai06.UI
             MessageBox.Show("Đã đăng xuất");
 
         }
+        private void lstEmail_DoubleClick(object sender, EventArgs e)
+        {
+            if (lstEmail.SelectedItems.Count == 0) return;
+            int index = (int)lstEmail.SelectedItems[0].Tag;
+            try
+            {
+                Cursor.Current = Cursors.WaitCursor;
+                this.UseWaitCursor = true;
+                Application.DoEvents(); 
+                ReadMailForm frm = new ReadMailForm(index);
+                frm.Shown += (s, args) =>
+                {
+                    this.UseWaitCursor = false;
+                    Cursor.Current = Cursors.Default;
+                };
+
+                frm.Show();
+            }
+            catch
+            {
+                this.UseWaitCursor = false;
+                Cursor.Current = Cursors.Default;
+                throw;
+            }
+        }
+
     }
 }
