@@ -69,6 +69,9 @@ namespace Bai06.UI
                 }
 
                 MessageBox.Show("Gửi mail thành công!");
+
+                this.Close();
+
             }
             catch (Exception ex)
             {
