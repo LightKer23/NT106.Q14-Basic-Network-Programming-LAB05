@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Bai05.Models
+{
+    public class ApiResult<T>
+    {
+        public bool Success { get; set; }
+        public string? ErrorMessage { get; set; } = string.Empty;
+        public T? Data { get; set; }
+        public static ApiResult<T> Ok(T data) => new ApiResult<T> { Success = true, Data = data };
+        public static ApiResult<T> Fail(string errorMessage) => new ApiResult<T> { Success = false, ErrorMessage = errorMessage };
+    }
+}
