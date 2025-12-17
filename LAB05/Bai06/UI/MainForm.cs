@@ -88,9 +88,21 @@ namespace Bai06.UI
             Email = txtUsername.Text.Trim();
             Password = txtPassword.Text.Trim();
             SMTPHost = txtSMTP.Text.Trim();
-            SMTPPort = int.Parse(txtPortSMTP.Text);
             IMAPHost = txtIMAP.Text.Trim();
-            IMAPPort = int.Parse(txtPortIMAP.Text);
+
+            if (!int.TryParse(txtPortSMTP.Text.Trim(), out int smtpPort) || smtpPort < 1 || smtpPort > 65535)
+            {
+                MessageBox.Show("SMTP Port không hợp lệ!");
+                return;
+            }
+            if (!int.TryParse(txtPortIMAP.Text.Trim(), out int imapPort) || imapPort < 1 || imapPort > 65535)
+            {
+                MessageBox.Show("IMAP Port không hợp lệ!");
+                return;
+            }
+
+            SMTPPort = smtpPort;
+            IMAPPort = imapPort;
 
 
             try

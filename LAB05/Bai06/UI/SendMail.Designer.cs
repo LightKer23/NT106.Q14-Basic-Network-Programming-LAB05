@@ -58,6 +58,7 @@
             // 
             txtFrom.Location = new Point(122, 16);
             txtFrom.Name = "txtFrom";
+            txtFrom.ReadOnly = true;
             txtFrom.Size = new Size(322, 27);
             txtFrom.TabIndex = 1;
             // 
