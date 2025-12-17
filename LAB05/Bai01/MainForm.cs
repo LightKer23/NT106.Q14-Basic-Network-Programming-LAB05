@@ -1,7 +1,4 @@
-﻿using System.Net.Mail;
-using System.Security.Authentication;
-using System.Text.RegularExpressions;
-using MimeKit;
+﻿using MimeKit;
 
 namespace Bai01
 {
@@ -10,20 +7,6 @@ namespace Bai01
         public MainForm()
         {
             InitializeComponent();
-        }
-
-        private bool IsValidEmail(string email)
-        {
-            try
-            {
-                return Regex.IsMatch(email,
-                    @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
-                    RegexOptions.IgnoreCase);
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private async void btnSend_Click(object sender, EventArgs e)
@@ -45,7 +28,7 @@ namespace Bai01
                 return;
             }
 
-            if (!IsValidEmail(from) || !IsValidEmail(to))
+            if (!MailboxAddress.TryParse(from, out _) || !MailboxAddress.TryParse(to, out _))
             {
                 btnSend.Enabled = true;
                 Cursor = Cursors.Default;
@@ -68,7 +51,6 @@ namespace Bai01
 
             try
             {
-
                 await client.AuthenticateAsync(from, password);
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
