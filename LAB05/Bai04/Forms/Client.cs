@@ -50,8 +50,8 @@ namespace Bai04
             emailService = new EmailService(
                 server: "smtp.gmail.com",
                 port: 587,
-                email: "testchill26@gmail.com",
-                password: "agpa qasd qbcv cple"
+                email: "anhduycdg2601@gmail.com",
+                password: "dver uede jqrd vxpc"
             );
         }
 
